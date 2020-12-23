@@ -1,0 +1,51 @@
+## cflags'-Llibs'
+
+## linklib'lua'
+## linklib'cimgui'
+## linklib'gl3w'
+## linklib'glfw'
+## linklib'tico_lib'
+
+--## cflags'-Iinclude'
+--## cflags'-Iexternal/glfw/include'
+--## cflags'-Iexternal/lua/src'
+
+--## cflags'-Iexternal'
+
+## cinclude'<tico.h>'
+
+local nelua_argc: cint <cimport, nodecl>
+local nelua_argv: *[0]cstring <cimport, nodecl>
+
+local tc_Config <cimport, nodecl> = @record{}
+local tc_Color <cimport, nodecl> = @record{
+  r: byte,
+  g: byte,
+  b: byte,
+  a: byte
+}
+
+local function tico_config_init(title: cstring, width: cint, height: cint, argc: cint, argv: *[0]cstring): tc_Config <cimport, nodecl> end
+local function tico_init(config: *tc_Config): cint <cimport, nodecl> end
+local function tico_window_should_close(): cint <cimport, nodecl> end
+local function tico_update(): cint <cimport, nodecl> end
+local function tico_graphics_clear(color: tc_Color) <cimport, nodecl> end
+local function tico_begin_draw(): cint <cimport, nodecl> end
+local function tico_end_draw(): cint <cimport, nodecl> end
+local function tico_terminate(): void <cimport, nodecl> end
+
+local config: tc_Config = tico_config_init("title", 640, 380, nelua_argc, nelua_argv)
+local success: cint = tico_init(config)
+--[[
+
+while tico_window_should_close() ~= 0 do -- main loop
+  tico_update() -- update inputs, timers, ...
+
+  tico_graphics_clear({75, 90, 90, 255}) -- clear screen with color
+
+  tico_begin_draw() -- begin batch render
+  tico_end_draw() -- finish batch render
+end
+
+]]
+tico_terminate()
