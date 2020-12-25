@@ -1,51 +1,56 @@
-## cflags'-Llibs'
+##[[
+  TICO = {
+    L = 'tinycoffee/build',
+    I = {
+      include = "tinycoffee/include",
+      external = "tinycoffee/external"
+    }
+  }
+]]
 
-## linklib'lua'
-## linklib'cimgui'
-## linklib'gl3w'
-## linklib'glfw'
-## linklib'tico_lib'
-
---## cflags'-Iinclude'
---## cflags'-Iexternal/glfw/include'
---## cflags'-Iexternal/lua/src'
-
---## cflags'-Iexternal'
-
-## cinclude'<tico.h>'
+require 'output.tico'
 
 local nelua_argc: cint <cimport, nodecl>
 local nelua_argv: *[0]cstring <cimport, nodecl>
 
-local tc_Config <cimport, nodecl> = @record{}
-local tc_Color <cimport, nodecl> = @record{
-  r: byte,
-  g: byte,
-  b: byte,
-  a: byte
-}
+local Rectf = tico.Rectf
+local Config = tico.Config
+local Color = tico.Color
+local Texture = tico.Texture
+local Rectf = tico.Rectf
 
-local function tico_config_init(title: cstring, width: cint, height: cint, argc: cint, argv: *[0]cstring): tc_Config <cimport, nodecl> end
-local function tico_init(config: *tc_Config): cint <cimport, nodecl> end
-local function tico_window_should_close(): cint <cimport, nodecl> end
-local function tico_update(): cint <cimport, nodecl> end
-local function tico_graphics_clear(color: tc_Color) <cimport, nodecl> end
-local function tico_begin_draw(): cint <cimport, nodecl> end
-local function tico_end_draw(): cint <cimport, nodecl> end
-local function tico_terminate(): void <cimport, nodecl> end
+local config: Config = tico.config_init("title", 640, 380, nelua_argc, nelua_argv)
+local success: cint = tico.init(config)
 
-local config: tc_Config = tico_config_init("title", 640, 380, nelua_argc, nelua_argv)
-local success: cint = tico_init(config)
---[[
+-- local my_tex: Texture <const> = tico.texture_load'resources/lunarlander_sprites.png'
+local dest: Rectf = {32,0,16,16}
+local source: Rectf = {0,0,16,16}
 
-while tico_window_should_close() ~= 0 do -- main loop
-  tico_update() -- update inputs, timers, ...
+local a, n = 0, 0
 
-  tico_graphics_clear({75, 90, 90, 255}) -- clear screen with color
+while not tico.window_should_close() do -- main loop
+  tico.update() -- update inputs, timers, ...
 
-  tico_begin_draw() -- begin batch render
-  tico_end_draw() -- finish batch render
+  --tic_log(0, "TESTE LOG %d", a)
+  a = a + 1
+
+  tico.graphics_clear(tico.WHITE) -- clear screen with color
+
+  -- [[ begin batch render [[
+  tico.begin_draw()
+  do
+    tico.graphics_draw_text("testando", 20, 20, tico.WHITE)
+
+    if a % 16 == 0 then
+      n = (n+1) % 2
+      source.x = 16 * n
+    end
+
+    --tico.graphics_draw(my_tex, dest, source, tico.WHITE)
+    local x = tico.lerp(2.0, 4.0, 0.5)
+  end
+  tico.end_draw()
+  -- ]] finish batch render ]]
 end
 
-]]
-tico_terminate()
+tico.terminate()

@@ -1,0 +1,1681 @@
+##[[
+  if not TICO.SHARED then
+    cflags('-L '..TICO.L)
+
+    cflags('-I '..TICO.I.include)
+    cflags('-I '..TICO.I.external)
+
+    linklib'tico_lib'
+    linklib'glfw'
+    linklib'gl3w'
+    linklib'GL'
+    linklib'lua'
+    linklib'cimgui'
+    linklib'dl'
+    linklib'X11'
+    linklib'pthread'
+    linklib'stdc++'
+  end
+
+  cinclude'<tico.h>'
+]]
+
+local stbtt_fontinfo: type <cimport, nodecl> = @record{}
+local cJSON: type <cimport, nodecl> = @record{}
+local lua_State: type <cimport, nodecl> = @record{}
+local LuaFunction: type <cimport, nodecl> = @function(*lua_State): cint
+local map_base_t <cimport, nodecl> = @record{}
+local ma_decoder <cimport, nodecl> = @record{}
+local GLFWcursor <cimport, nodecl> = @record{}
+local GLFWwindow <cimport, nodecl> = @record{}
+local ImGuiWindowFlags_ <cimport, nodecl> = @record{}
+
+
+local map_fieldtype_t: type <cimport, nodecl> = @record{}
+local map_field_t: type <cimport, nodecl> = @record{}
+local map_anim_t: type <cimport, nodecl> = @record{}
+local map_plugin_t: type <cimport, nodecl> = @record{}
+local map_deps_t: type <cimport, nodecl> = @record{}
+local map_resource_t: type <cimport, nodecl> = @record{}
+local map_resref_t: type <cimport, nodecl> = @record{}
+local map_resplugin_t: type <cimport, nodecl> = @record{}
+local map_editorplugin_t: type <cimport, nodecl> = @record{}
+local map_editorwindow_t: type <cimport, nodecl> = @record{}
+local map_object_t: type <cimport, nodecl> = @record{}
+local map_void_t: type <cimport, nodecl> = @record{}
+local map_str_t: type <cimport, nodecl> = @record{}
+local map_int_t: type <cimport, nodecl> = @record{}
+local map_char_t: type <cimport, nodecl> = @record{}
+local map_float_t: type <cimport, nodecl> = @record{}
+local map_double_t: type <cimport, nodecl> = @record{}
+local vec_canvas_t: type <cimport, nodecl> = @record{}
+local vec_void_t: type <cimport, nodecl> = @record{}
+local vec_str_t: type <cimport, nodecl> = @record{}
+local vec_int_t: type <cimport, nodecl> = @record{}
+local vec_char_t: type <cimport, nodecl> = @record{}
+local vec_float_t: type <cimport, nodecl> = @record{}
+local vec_double_t: type <cimport, nodecl> = @record{}
+local list_resdep_t: type <cimport, nodecl> = @record{}
+local list_int_t: type <cimport, nodecl> = @record{}
+local list_char_t: type <cimport, nodecl> = @record{}
+local list_str_t: type <cimport, nodecl> = @record{}
+local list_float_t: type <cimport, nodecl> = @record{}
+local stack_canvas_t: type <cimport, nodecl> = @record{}
+local stack_shader_t: type <cimport, nodecl> = @record{}
+local stack_matrix_t: type <cimport, nodecl> = @record{}
+
+global tico = @record{}
+
+global function tico_utils_generate_uuid(out: cstring, size: cint) <cimport, nodecl> end
+global function tico_utils_get_ratio(w0: float32, h0: float32, w1: float32, h1: float32): float32 <cimport, nodecl> end
+global function tico_utils_hash(key: cstring): cint <cimport, nodecl> end
+global function tico_replace_char(str: cstring, find: cuchar, replace: cuchar): cstring <cimport, nodecl> end
+global function tico_utf8_codepoint(p: *cuchar, codepoint: *cint): *cuchar <cimport, nodecl> end
+global function tico_utf8_encode(c: *cuchar, codepoint: cint) <cimport, nodecl> end
+global function tico_utf8_decode(p: *cuchar): cint <cimport, nodecl> end
+global function tico_write_buffer_header(name: cstring, text: cstring, size: clong) <cimport, nodecl> end
+global function tico_set_clipboard(text: cstring) <cimport, nodecl> end
+global function tico_get_clipboard(): cstring <cimport, nodecl> end
+global tc_Rect: type <cimport, nodecl> = @record{
+  __unnamed1: union{
+    data: [4]cint,
+    __unnamed1: record{
+      x: cint,
+      y: cint,
+      w: cint,
+      h: cint
+    }
+  }
+}
+global tc_Rectf: type <cimport, nodecl> = @record{
+  __unnamed1: union{
+    data: [4]float32,
+    __unnamed1: record{
+      x: float32,
+      y: float32,
+      w: float32,
+      h: float32
+    }
+  }
+}
+global tc_Circle: type <cimport, nodecl> = @record{
+  __unnamed1: union{
+    data: [3]cint,
+    __unnamed1: record{
+      x: cint,
+      y: cint,
+      radius: cint
+    }
+  }
+}
+global tc_Circlef: type <cimport, nodecl> = @record{
+  __unnamed1: union{
+    data: [3]float32,
+    __unnamed1: record{
+      x: float32,
+      y: float32,
+      radius: float32
+    }
+  }
+}
+global tc_Color: type <cimport, nodecl> = @record{
+  __unnamed1: union{
+    data: [4]cuchar,
+    __unnamed1: record{
+      r: cuchar,
+      g: cuchar,
+      b: cuchar,
+      a: cuchar
+    }
+  }
+}
+global TIC_SHADER_UNIFORM_: type <cimport, nodecl, using> = @enum(cint){
+  TIC_UNIFORM_INT = 0,
+  TIC_UNIFORM_VEC2I = 1,
+  TIC_UNIFORM_VEC3I = 2,
+  TIC_UNIFORM_VEC4I = 3,
+  TIC_UNIFORM_FLOAT = 4,
+  TIC_UNIFORM_VEC2 = 5,
+  TIC_UNIFORM_VEC3 = 6,
+  TIC_UNIFORM_VEC4 = 7,
+  TIC_UNIFORM_MATRIX = 8
+}
+global tc_Texture: type <cimport, nodecl> = @record{
+  id: cuint,
+  width: cint,
+  height: cint,
+  wrap: [2]cint,
+  filter: [2]cint
+}
+global tc_Image: type <cimport, nodecl> = @record{
+  texture: tc_Texture,
+  width: cint,
+  height: cint
+}
+global tc_Canvas: type <cimport, nodecl> = @record{
+  id: cuint,
+  tex: tc_Texture,
+  width: cint,
+  height: cint
+}
+global tc_Shader: type <cimport, nodecl> = @record{
+  program: cuint
+}
+global tc_CharacterInfo: type <cimport, nodecl> = @record{
+  ax: cint,
+  ay: cint,
+  bw: cint,
+  bh: cint,
+  bl: cint,
+  bt: cint,
+  tx: float32
+}
+global tc_Font: type <cimport, nodecl> = @record{
+  texture: tc_Texture,
+  c: [256]tc_CharacterInfo,
+  size: cuchar,
+  info: stbtt_fontinfo,
+  ptsize: float32,
+  scale: float32,
+  baseline: cint,
+  data: pointer,
+  atlasVao: cuint,
+  atlasVbo: cuint
+}
+global tc_Vec2: type <cimport, nodecl> = @record{
+  __unnamed1: union{
+    data: [2]float32,
+    __unnamed1: record{
+      x: float32,
+      y: float32
+    }
+  }
+}
+global tc_Vec3: type <cimport, nodecl> = @record{
+  __unnamed1: union{
+    data: [3]float32,
+    __unnamed1: record{
+      x: float32,
+      y: float32,
+      z: float32
+    }
+  }
+}
+global tc_Vec4: type <cimport, nodecl> = @record{
+  __unnamed1: union{
+    data: [4]float32,
+    __unnamed1: record{
+      x: float32,
+      y: float32,
+      z: float32,
+      w: float32
+    }
+  }
+}
+global tc_Matrix: type <cimport, nodecl> = @record{
+  __unnamed1: union{
+    data: [4][4]float32,
+    v: [4]tc_Vec4,
+    __unnamed1: record{
+      m00: float32,
+      m10: float32,
+      m20: float32,
+      m30: float32,
+      m01: float32,
+      m11: float32,
+      m21: float32,
+      m31: float32,
+      m02: float32,
+      m12: float32,
+      m22: float32,
+      m32: float32,
+      m03: float32,
+      m13: float32,
+      m23: float32,
+      m33: float32
+    }
+  }
+}
+global function tico_vec2_add(v: *tc_Vec2, a: tc_Vec2, b: tc_Vec2) <cimport, nodecl> end
+global function tico_vec2_sub(v: *tc_Vec2, a: tc_Vec2, b: tc_Vec2) <cimport, nodecl> end
+global function tico_vec2_mul(v: *tc_Vec2, a: tc_Vec2, number: float32) <cimport, nodecl> end
+global function tico_vec2_div(v: *tc_Vec2, a: tc_Vec2, number: float32) <cimport, nodecl> end
+global function tico_vec2_dot(a: tc_Vec2, b: tc_Vec2): float32 <cimport, nodecl> end
+global function tico_vec2_print(v: tc_Vec2) <cimport, nodecl> end
+global function tico_vec2_equals(a: tc_Vec2, b: tc_Vec2): cint <cimport, nodecl> end
+global function tico_vec2_len(v: tc_Vec2): float32 <cimport, nodecl> end
+global function tico_vec2_normalize(v: *tc_Vec2, u: tc_Vec2) <cimport, nodecl> end
+global function tico_vec2_distance(a: tc_Vec2, b: tc_Vec2): float32 <cimport, nodecl> end
+global function tico_vec2_min(r: *tc_Vec2, a: tc_Vec2, b: tc_Vec2) <cimport, nodecl> end
+global function tico_vec2_max(r: *tc_Vec2, a: tc_Vec2, b: tc_Vec2) <cimport, nodecl> end
+global function tico_vec2_lerp(r: *tc_Vec2, a: tc_Vec2, b: tc_Vec2, t: float32) <cimport, nodecl> end
+global function tico_vec2_perpdot(v: tc_Vec2, w: tc_Vec2): float32 <cimport, nodecl> end
+global function tico_vec2_normal(r: *tc_Vec2, v: tc_Vec2) <cimport, nodecl> end
+global function tico_vec2_projection(r: *tc_Vec2, v: tc_Vec2, w: tc_Vec2) <cimport, nodecl> end
+global function tico_vec2_angle(v: tc_Vec2): float32 <cimport, nodecl> end
+global function tico_vec3_add(v: *tc_Vec3, a: tc_Vec3, b: tc_Vec3) <cimport, nodecl> end
+global function tico_vec3_sub(v: *tc_Vec3, a: tc_Vec3, b: tc_Vec3) <cimport, nodecl> end
+global function tico_vec3_mul(v: *tc_Vec3, a: tc_Vec3, number: float32) <cimport, nodecl> end
+global function tico_vec3_div(v: *tc_Vec3, a: tc_Vec3, number: float32) <cimport, nodecl> end
+global function tico_vec3_dot(a: tc_Vec3, b: tc_Vec3): float32 <cimport, nodecl> end
+global function tico_vec3_print(v: tc_Vec3) <cimport, nodecl> end
+global function tico_vec3_equals(a: tc_Vec3, b: tc_Vec3): cint <cimport, nodecl> end
+global function tico_vec3_len(v: tc_Vec3): float32 <cimport, nodecl> end
+global function tico_vec3_normalize(v: *tc_Vec3, u: tc_Vec3) <cimport, nodecl> end
+global function tico_vec3_distance(a: tc_Vec3, b: tc_Vec3): float32 <cimport, nodecl> end
+global function tico_vec3_min(r: *tc_Vec3, a: tc_Vec3, b: tc_Vec3) <cimport, nodecl> end
+global function tico_vec3_max(r: *tc_Vec3, a: tc_Vec3, b: tc_Vec3) <cimport, nodecl> end
+global function tico_vec3_lerp(r: *tc_Vec3, a: tc_Vec3, b: tc_Vec3, t: float32) <cimport, nodecl> end
+global function tico_vec3_cross(r: *tc_Vec3, a: tc_Vec3, b: tc_Vec3) <cimport, nodecl> end
+global function tico_vec3_reflect(r: *tc_Vec3, v: tc_Vec3, n: tc_Vec3) <cimport, nodecl> end
+global function tico_vec4_add(v: *tc_Vec4, a: tc_Vec4, b: tc_Vec4) <cimport, nodecl> end
+global function tico_vec4_sub(v: *tc_Vec4, a: tc_Vec4, b: tc_Vec4) <cimport, nodecl> end
+global function tico_vec4_mul(v: *tc_Vec4, a: tc_Vec4, number: float32) <cimport, nodecl> end
+global function tico_vec4_div(v: *tc_Vec4, a: tc_Vec4, number: float32) <cimport, nodecl> end
+global function tico_vec4_dot(a: tc_Vec4, b: tc_Vec4): float32 <cimport, nodecl> end
+global function tico_vec4_print(v: tc_Vec4) <cimport, nodecl> end
+global function tico_vec4_equals(a: tc_Vec4, b: tc_Vec4): cint <cimport, nodecl> end
+global function tico_vec4_len(v: tc_Vec4): float32 <cimport, nodecl> end
+global function tico_vec4_normalize(v: *tc_Vec4, u: tc_Vec4) <cimport, nodecl> end
+global function tico_vec4_distance(a: tc_Vec4, b: tc_Vec4): float32 <cimport, nodecl> end
+global function tico_vec4_min(r: *tc_Vec4, a: tc_Vec4, b: tc_Vec4) <cimport, nodecl> end
+global function tico_vec4_max(r: *tc_Vec4, a: tc_Vec4, b: tc_Vec4) <cimport, nodecl> end
+global function tico_vec4_lerp(r: *tc_Vec4, a: tc_Vec4, b: tc_Vec4, t: float32) <cimport, nodecl> end
+global function tico_vec4_cross(r: *tc_Vec4, a: tc_Vec4, b: tc_Vec4) <cimport, nodecl> end
+global function tico_vec4_reflect(r: *tc_Vec4, v: tc_Vec4, n: tc_Vec4) <cimport, nodecl> end
+global function tico_matrix_identity(m: *tc_Matrix) <cimport, nodecl> end
+global function tico_matrix_clone(m: *tc_Matrix, s: tc_Matrix) <cimport, nodecl> end
+global function tico_matrix_equals(a: tc_Matrix, b: tc_Matrix): cint <cimport, nodecl> end
+global function tico_matrix_print(m: tc_Matrix) <cimport, nodecl> end
+global function tico_matrix_row(v: *tc_Vec4, m: tc_Matrix, row: cint) <cimport, nodecl> end
+global function tico_matrix_transpose(m: *tc_Matrix, n: tc_Matrix) <cimport, nodecl> end
+global function tico_matrix_translate(r: *tc_Matrix, x: float32, y: float32, z: float32) <cimport, nodecl> end
+global function tico_matrix_translate_in_place(r: *tc_Matrix, x: float32, y: float32, z: float32) <cimport, nodecl> end
+global function tico_matrix_translatev(r: *tc_Matrix, v: tc_Vec3) <cimport, nodecl> end
+global function tico_matrix_scale(r: *tc_Matrix, m: tc_Matrix, s: float32) <cimport, nodecl> end
+global function tico_matrix_scale_aniso(m: *tc_Matrix, a: tc_Matrix, x: float32, y: float32, z: float32) <cimport, nodecl> end
+global function tico_matrix_scaleV(r: *tc_Matrix, v: tc_Vec3) <cimport, nodecl> end
+global function tico_matrix_from_vec3_mul_outer(m: *tc_Matrix, a: tc_Vec3, b: tc_Vec3) <cimport, nodecl> end
+global function tico_matrix_mul_vec4(v: *tc_Vec4, m: tc_Matrix, n: tc_Vec4) <cimport, nodecl> end
+global function tico_matrix_mul(r: *tc_Matrix, m: tc_Matrix, n: tc_Matrix) <cimport, nodecl> end
+global function tico_matrix_rotate(r: *tc_Matrix, m: tc_Matrix, x: float32, y: float32, z: float32, angle: float32) <cimport, nodecl> end
+global function tico_matrix_rotate_x(r: *tc_Matrix, m: tc_Matrix, angle: float32) <cimport, nodecl> end
+global function tico_matrix_rotate_y(r: *tc_Matrix, m: tc_Matrix, angle: float32) <cimport, nodecl> end
+global function tico_matrix_rotate_z(r: *tc_Matrix, m: tc_Matrix, angle: float32) <cimport, nodecl> end
+global function tico_matrix_rotate2D(r: *tc_Matrix, m: tc_Matrix, angle: float32) <cimport, nodecl> end
+global function tico_matrix_invert(r: *tc_Matrix, m: tc_Matrix) <cimport, nodecl> end
+global function tico_matrix_orthonormalize(r: *tc_Matrix, m: tc_Matrix) <cimport, nodecl> end
+global function tico_matrix_frustum(m: *tc_Matrix, l: float32, r: float32, b: float32, t: float32, n: float32, f: float32) <cimport, nodecl> end
+global function tico_matrix_ortho(m: *tc_Matrix, l: float32, r: float32, b: float32, t: float32, n: float32, f: float32) <cimport, nodecl> end
+global function tico_matrix_perspective(m: *tc_Matrix, y_fov: float32, aspect: float32, n: float32, f: float32) <cimport, nodecl> end
+global function tico_matrix_look_at(m: *tc_Matrix, eye: tc_Vec3, center: tc_Vec3, up: tc_Vec3) <cimport, nodecl> end
+global function tico_lerp(a: float32, b: float32, t: float32): float32 <cimport, nodecl> end
+global function tico_round(n: float32): float32 <cimport, nodecl> end
+global function tico_distance(a: float32, b: float32): float32 <cimport, nodecl> end
+global function tico_sign(a: float32): cint <cimport, nodecl> end
+global function tico_angle(x0: float32, y0: float32, x1: float32, y1: float32): float32 <cimport, nodecl> end
+global TIC_FILE_TYPE_: type <cimport, nodecl, using> = @enum(cint){
+  TIC_FILE = 0,
+  TIC_DIRECTORY = 1,
+  TIC_SYMLINK = 2
+}
+global TIC_WRITE_MODE_: type <cimport, nodecl, using> = @enum(cint){
+  TIC_WRITE = 0,
+  TIC_APPEND = 1,
+  TIC_BINARY = 2
+}
+global tc_Filesystem: type <cimport, nodecl, forwarddecl> = @record{}
+global tc_Filesystem: type <cimport, nodecl> = @record{
+  projectPath: [256]cchar,
+  exePath: [256]cchar,
+  readFile: ReadFunction,
+  writeFile: WriteFunction,
+  fileExists: FileExistsFunction,
+  packed: cint
+}
+global function tico_filesystem_init(fs: *tc_Filesystem): cint <cimport, nodecl> end
+global function tico_json_is_valid(filename: cstring): cint <cimport, nodecl> end
+global function tico_json_open(filename: cstring): *cJSON <cimport, nodecl> end
+global function tico_json_parse(jsonStr: cstring): *cJSON <cimport, nodecl> end
+global function tico_json_clone(src: *cJSON): *cJSON <cimport, nodecl> end
+global function tico_json_save(filename: cstring, json: *cJSON) <cimport, nodecl> end
+global function tico_json_print(json: *cJSON): cstring <cimport, nodecl> end
+global function tico_json_create(): *cJSON <cimport, nodecl> end
+global function tico_json_delete(json: *cJSON) <cimport, nodecl> end
+global function tico_json_add_item(json: *cJSON, name: cstring, item: *cJSON): cint <cimport, nodecl> end
+global function tico_json_get_item(json: *cJSON, name: cstring, index: cint): *cJSON <cimport, nodecl> end
+global function tico_json_create_string(value: cstring): *cJSON <cimport, nodecl> end
+global function tico_json_is_string(json: *cJSON): cint <cimport, nodecl> end
+global function tico_json_set_string(json: *cJSON, value: cstring) <cimport, nodecl> end
+global function tico_json_to_string(json: *cJSON): cstring <cimport, nodecl> end
+global function tico_json_opt_string(json: *cJSON, opt: cstring): cstring <cimport, nodecl> end
+global function tico_json_add_string(json: *cJSON, name: cstring, value: cstring): *cJSON <cimport, nodecl> end
+global function tico_json_get_string(json: *cJSON, name: cstring, index: cint): cstring <cimport, nodecl> end
+global function tico_json_get_opt_string(json: *cJSON, name: cstring, index: cint, opt: cstring): cstring <cimport, nodecl> end
+global function tico_json_create_number(value: float32): *cJSON <cimport, nodecl> end
+global function tico_json_is_number(json: *cJSON): cint <cimport, nodecl> end
+global function tico_json_set_number(json: *cJSON, value: float32) <cimport, nodecl> end
+global function tico_json_to_number(json: *cJSON): float32 <cimport, nodecl> end
+global function tico_json_opt_number(json: *cJSON, opt: float32): float32 <cimport, nodecl> end
+global function tico_json_add_number(json: *cJSON, name: cstring, value: float32): *cJSON <cimport, nodecl> end
+global function tico_json_get_number(json: *cJSON, name: cstring, index: cint): float32 <cimport, nodecl> end
+global function tico_json_get_opt_number(json: *cJSON, name: cstring, index: cint, opt: float32): float32 <cimport, nodecl> end
+global function tico_json_create_boolean(value: cint): *cJSON <cimport, nodecl> end
+global function tico_json_is_boolean(json: *cJSON): cint <cimport, nodecl> end
+global function tico_json_set_boolean(json: *cJSON, value: cint) <cimport, nodecl> end
+global function tico_json_to_boolean(json: *cJSON): cint <cimport, nodecl> end
+global function tico_json_opt_boolean(json: *cJSON, opt: cint): cint <cimport, nodecl> end
+global function tico_json_add_boolean(json: *cJSON, name: cstring, value: cint): *cJSON <cimport, nodecl> end
+global function tico_json_get_boolean(json: *cJSON, name: cstring, index: cint): cint <cimport, nodecl> end
+global function tico_json_get_opt_boolean(json: *cJSON, name: cstring, index: cint, opt: cint): cint <cimport, nodecl> end
+global function tico_json_create_vec2(value: tc_Vec2): *cJSON <cimport, nodecl> end
+global function tico_json_is_vec2(json: *cJSON): cint <cimport, nodecl> end
+global function tico_json_set_vec2(json: *cJSON, value: tc_Vec2) <cimport, nodecl> end
+global function tico_json_to_vec2(json: *cJSON): tc_Vec2 <cimport, nodecl> end
+global function tico_json_opt_vec2(json: *cJSON, opt: tc_Vec2): tc_Vec2 <cimport, nodecl> end
+global function tico_json_add_vec2(json: *cJSON, name: cstring, value: tc_Vec2): *cJSON <cimport, nodecl> end
+global function tico_json_get_vec2(json: *cJSON, name: cstring, index: cint): tc_Vec2 <cimport, nodecl> end
+global function tico_json_get_opt_vec2(json: *cJSON, name: cstring, index: cint, opt: tc_Vec2): tc_Vec2 <cimport, nodecl> end
+global function tico_json_create_vec3(value: tc_Vec3): *cJSON <cimport, nodecl> end
+global function tico_json_is_vec3(json: *cJSON): cint <cimport, nodecl> end
+global function tico_json_set_vec3(json: *cJSON, value: tc_Vec3) <cimport, nodecl> end
+global function tico_json_to_vec3(json: *cJSON): tc_Vec3 <cimport, nodecl> end
+global function tico_json_opt_vec3(json: *cJSON, opt: tc_Vec3): tc_Vec3 <cimport, nodecl> end
+global function tico_json_add_vec3(json: *cJSON, name: cstring, value: tc_Vec3): *cJSON <cimport, nodecl> end
+global function tico_json_get_vec3(json: *cJSON, name: cstring, index: cint): tc_Vec3 <cimport, nodecl> end
+global function tico_json_get_opt_vec3(json: *cJSON, name: cstring, index: cint, opt: tc_Vec3): tc_Vec3 <cimport, nodecl> end
+global function tico_json_create_vec4(value: tc_Vec4): *cJSON <cimport, nodecl> end
+global function tico_json_is_vec4(json: *cJSON): cint <cimport, nodecl> end
+global function tico_json_set_vec4(json: *cJSON, value: tc_Vec4) <cimport, nodecl> end
+global function tico_json_to_vec4(json: *cJSON): tc_Vec4 <cimport, nodecl> end
+global function tico_json_opt_vec4(json: *cJSON, opt: tc_Vec4): tc_Vec4 <cimport, nodecl> end
+global function tico_json_add_vec4(json: *cJSON, name: cstring, value: tc_Vec4): *cJSON <cimport, nodecl> end
+global function tico_json_get_vec4(json: *cJSON, name: cstring, index: cint): tc_Vec4 <cimport, nodecl> end
+global function tico_json_get_opt_vec4(json: *cJSON, name: cstring, index: cint, opt: tc_Vec4): tc_Vec4 <cimport, nodecl> end
+global function tico_json_create_array(value: *cJSON): *cJSON <cimport, nodecl> end
+global function tico_json_is_array(json: *cJSON): cint <cimport, nodecl> end
+global function tico_json_set_array(json: *cJSON, value: *cJSON) <cimport, nodecl> end
+global function tico_json_to_array(json: *cJSON): *cJSON <cimport, nodecl> end
+global function tico_json_opt_array(json: *cJSON, opt: *cJSON): *cJSON <cimport, nodecl> end
+global function tico_json_add_array(json: *cJSON, name: cstring, value: *cJSON): *cJSON <cimport, nodecl> end
+global function tico_json_get_array(json: *cJSON, name: cstring, index: cint): *cJSON <cimport, nodecl> end
+global function tico_json_get_opt_array(json: *cJSON, name: cstring, index: cint, opt: *cJSON): *cJSON <cimport, nodecl> end
+global function tico_json_create_int_array(value: *cint): *cJSON <cimport, nodecl> end
+global function tico_json_is_int_array(json: *cJSON): cint <cimport, nodecl> end
+global function tico_json_set_int_array(json: *cJSON, value: *cint) <cimport, nodecl> end
+global function tico_json_to_int_array(json: *cJSON): *cint <cimport, nodecl> end
+global function tico_json_opt_int_array(json: *cJSON, opt: *cint): *cint <cimport, nodecl> end
+global function tico_json_add_int_array(json: *cJSON, name: cstring, value: *cint): *cJSON <cimport, nodecl> end
+global function tico_json_get_int_array(json: *cJSON, name: cstring, index: cint): *cint <cimport, nodecl> end
+global function tico_json_get_opt_int_array(json: *cJSON, name: cstring, index: cint, opt: *cint): *cint <cimport, nodecl> end
+global function tico_json_create_object(value: *cJSON): *cJSON <cimport, nodecl> end
+global function tico_json_is_object(json: *cJSON): cint <cimport, nodecl> end
+global function tico_json_set_object(json: *cJSON, value: *cJSON) <cimport, nodecl> end
+global function tico_json_to_object(json: *cJSON): *cJSON <cimport, nodecl> end
+global function tico_json_opt_object(json: *cJSON, opt: *cJSON): *cJSON <cimport, nodecl> end
+global function tico_json_add_object(json: *cJSON, name: cstring, value: *cJSON): *cJSON <cimport, nodecl> end
+global function tico_json_get_object(json: *cJSON, name: cstring, index: cint): *cJSON <cimport, nodecl> end
+global function tico_json_get_opt_object(json: *cJSON, name: cstring, index: cint, opt: *cJSON): *cJSON <cimport, nodecl> end
+global function tico_json_to_circle(json: *cJSON): tc_Circlef <cimport, nodecl> end
+global function tico_json_get_array_size(json: *cJSON): cint <cimport, nodecl> end
+global tc_Field: type <cimport, nodecl, forwarddecl> = @record{}
+global tc_Meta: type <cimport, nodecl, forwarddecl> = @record{}
+global TIC_FIELD_TYPE_: type <cimport, nodecl, using> = @enum(cint){
+  TIC_FIELD_TYPE_NULL = 0,
+  TIC_FIELD_TYPE_NUMBER = 1,
+  TIC_FIELD_TYPE_STRING = 2,
+  TIC_FIELD_TYPE_BOOLEAN = 3,
+  TIC_FIELD_TYPE_VEC2 = 4,
+  TIC_FIELD_TYPE_VEC3 = 5,
+  TIC_FIELD_TYPE_VEC4 = 6,
+  TIC_FIELD_TYPE_ARRAY = 7,
+  TIC_FIELD_TYPE_OBJECT = 8,
+  TIC_FIELD_TYPE_CUSTOM = 9,
+  TIC_FIELD_TYPE_REFERENCE = 10,
+  TIC_FIELD_TYPE_MAX = 11
+}
+global tc_MetaFn: type <cimport, nodecl> = @record{
+  draw: drawField,
+  imgui: imguiField
+}
+global tc_FieldFn: type = @tc_MetaFn
+global tc_FieldType: type <cimport, nodecl> = @record{
+  load: loadFromJson,
+  json: exportToJson,
+  draw: drawField,
+  imgui: imguiField
+}
+global tc_Serialization: type <cimport, nodecl> = @record{
+  types: map_fieldtype_t
+}
+global tc_Field: type <cimport, nodecl> = @record{
+  type: TIC_FIELD_TYPE_,
+  field_type: *tc_FieldType,
+  name: [128]cchar,
+  meta: *tc_Field,
+  own_meta: cint,
+  number: float32,
+  string: [256]cchar,
+  boolean: cint,
+  vec2: tc_Vec2,
+  vec3: tc_Vec3,
+  vec4: tc_Vec4,
+  ref: *tc_Field,
+  user_data: pointer,
+  prev: *tc_Field,
+  next: *tc_Field,
+  parent: *tc_Field,
+  child: *tc_Field
+}
+global tc_Meta: type <cimport, nodecl> = @record{
+  fields: map_field_t
+}
+global function tico_serialization_init() <cimport, nodecl> end
+global function tico_meta_from_json(json: *cJSON): *tc_Meta <cimport, nodecl> end
+global function tico_meta_to_field(meta: *tc_Meta): *tc_Field <cimport, nodecl> end
+global function tico_meta_destroy(meta: *tc_Meta) <cimport, nodecl> end
+global function tico_meta_field_draw(meta: *tc_Meta, field: *tc_Field) <cimport, nodecl> end
+global function tico_meta_field_imgui(meta: *tc_Meta, field: *tc_Field) <cimport, nodecl> end
+global function tico_field_create(type: TIC_FIELD_TYPE_): *tc_Field <cimport, nodecl> end
+global function tico_field_load(path: cstring): *tc_Field <cimport, nodecl> end
+global function tico_field_from_json(json: *cJSON, meta_field: *tc_Field): *tc_Field <cimport, nodecl> end
+global function tico_field_delete(field: *tc_Field) <cimport, nodecl> end
+global function tico_field_push(field: *tc_Field, index: cint, item: *tc_Field) <cimport, nodecl> end
+global function tico_field_set(field: *tc_Field, name: cstring, item: *tc_Field): *tc_Field <cimport, nodecl> end
+global function tico_field_get(field: *tc_Field, name: cstring): *tc_Field <cimport, nodecl> end
+global function tico_field_length(field: *tc_Field): cint <cimport, nodecl> end
+global function tico_field_draw_imgui(field: *tc_Field) <cimport, nodecl> end
+global function tico_field_draw(field: *tc_Field, pos: tc_Vec2, scale: float32) <cimport, nodecl> end
+global function tico_field_vec2_array_from_json(json: *cJSON): *tc_Field <cimport, nodecl> end
+global function tico_field_create_number(value: float32): *tc_Field <cimport, nodecl> end
+global function tico_field_number_from_json(json: *cJSON): *tc_Field <cimport, nodecl> end
+global function tico_field_get_number(field: *tc_Field, name: cstring): float32 <cimport, nodecl> end
+global function tico_field_get_opt_number(field: *tc_Field, name: cstring, opt: float32): float32 <cimport, nodecl> end
+global function tico_field_add_number(field: *tc_Field, name: cstring, value: float32): *tc_Field <cimport, nodecl> end
+global function tico_field_to_number(field: *tc_Field): float32 <cimport, nodecl> end
+global function tico_field_to_opt_number(field: *tc_Field, value: float32): float32 <cimport, nodecl> end
+global function tico_field_set_number(field: *tc_Field, value: float32) <cimport, nodecl> end
+global function tico_field_number_imgui(field: *tc_Field) <cimport, nodecl> end
+global function tico_field_draw_number(field: *tc_Field, pos: tc_Vec2, scale: float32) <cimport, nodecl> end
+global function tico_field_number_to_json(field: *tc_Field, export_meta: cint): *cJSON <cimport, nodecl> end
+global function tico_meta_draw_number(a1: *tc_Field, a2: *tc_Field) <cimport, nodecl> end
+global function tico_meta_imgui_number(a1: *tc_Field, a2: *tc_Field) <cimport, nodecl> end
+global function tico_field_create_string(value: cstring): *tc_Field <cimport, nodecl> end
+global function tico_field_string_from_json(json: *cJSON): *tc_Field <cimport, nodecl> end
+global function tico_field_get_string(field: *tc_Field, name: cstring): cstring <cimport, nodecl> end
+global function tico_field_get_opt_string(field: *tc_Field, name: cstring, opt: cstring): cstring <cimport, nodecl> end
+global function tico_field_add_string(field: *tc_Field, name: cstring, value: cstring): *tc_Field <cimport, nodecl> end
+global function tico_field_to_string(field: *tc_Field): cstring <cimport, nodecl> end
+global function tico_field_to_opt_string(field: *tc_Field, value: cstring): cstring <cimport, nodecl> end
+global function tico_field_set_string(field: *tc_Field, value: cstring) <cimport, nodecl> end
+global function tico_field_string_imgui(field: *tc_Field) <cimport, nodecl> end
+global function tico_field_draw_string(field: *tc_Field, pos: tc_Vec2, scale: float32) <cimport, nodecl> end
+global function tico_field_string_to_json(field: *tc_Field, export_meta: cint): *cJSON <cimport, nodecl> end
+global function tico_meta_draw_string(a1: *tc_Field, a2: *tc_Field) <cimport, nodecl> end
+global function tico_meta_imgui_string(a1: *tc_Field, a2: *tc_Field) <cimport, nodecl> end
+global function tico_field_create_boolean(value: cint): *tc_Field <cimport, nodecl> end
+global function tico_field_boolean_from_json(json: *cJSON): *tc_Field <cimport, nodecl> end
+global function tico_field_get_boolean(field: *tc_Field, name: cstring): cint <cimport, nodecl> end
+global function tico_field_get_opt_boolean(field: *tc_Field, name: cstring, opt: cint): cint <cimport, nodecl> end
+global function tico_field_add_boolean(field: *tc_Field, name: cstring, value: cint): *tc_Field <cimport, nodecl> end
+global function tico_field_to_boolean(field: *tc_Field): cint <cimport, nodecl> end
+global function tico_field_to_opt_boolean(field: *tc_Field, value: cint): cint <cimport, nodecl> end
+global function tico_field_set_boolean(field: *tc_Field, value: cint) <cimport, nodecl> end
+global function tico_field_boolean_imgui(field: *tc_Field) <cimport, nodecl> end
+global function tico_field_draw_boolean(field: *tc_Field, pos: tc_Vec2, scale: float32) <cimport, nodecl> end
+global function tico_field_boolean_to_json(field: *tc_Field, export_meta: cint): *cJSON <cimport, nodecl> end
+global function tico_meta_draw_boolean(a1: *tc_Field, a2: *tc_Field) <cimport, nodecl> end
+global function tico_meta_imgui_boolean(a1: *tc_Field, a2: *tc_Field) <cimport, nodecl> end
+global function tico_field_create_vec2(value: tc_Vec2): *tc_Field <cimport, nodecl> end
+global function tico_field_vec2_from_json(json: *cJSON): *tc_Field <cimport, nodecl> end
+global function tico_field_get_vec2(field: *tc_Field, name: cstring): tc_Vec2 <cimport, nodecl> end
+global function tico_field_get_opt_vec2(field: *tc_Field, name: cstring, opt: tc_Vec2): tc_Vec2 <cimport, nodecl> end
+global function tico_field_add_vec2(field: *tc_Field, name: cstring, value: tc_Vec2): *tc_Field <cimport, nodecl> end
+global function tico_field_to_vec2(field: *tc_Field): tc_Vec2 <cimport, nodecl> end
+global function tico_field_to_opt_vec2(field: *tc_Field, value: tc_Vec2): tc_Vec2 <cimport, nodecl> end
+global function tico_field_set_vec2(field: *tc_Field, value: tc_Vec2) <cimport, nodecl> end
+global function tico_field_vec2_imgui(field: *tc_Field) <cimport, nodecl> end
+global function tico_field_draw_vec2(field: *tc_Field, pos: tc_Vec2, scale: float32) <cimport, nodecl> end
+global function tico_field_vec2_to_json(field: *tc_Field, export_meta: cint): *cJSON <cimport, nodecl> end
+global function tico_meta_draw_vec2(a1: *tc_Field, a2: *tc_Field) <cimport, nodecl> end
+global function tico_meta_imgui_vec2(a1: *tc_Field, a2: *tc_Field) <cimport, nodecl> end
+global function tico_field_create_vec3(value: tc_Vec3): *tc_Field <cimport, nodecl> end
+global function tico_field_vec3_from_json(json: *cJSON): *tc_Field <cimport, nodecl> end
+global function tico_field_get_vec3(field: *tc_Field, name: cstring): tc_Vec3 <cimport, nodecl> end
+global function tico_field_get_opt_vec3(field: *tc_Field, name: cstring, opt: tc_Vec3): tc_Vec3 <cimport, nodecl> end
+global function tico_field_add_vec3(field: *tc_Field, name: cstring, value: tc_Vec3): *tc_Field <cimport, nodecl> end
+global function tico_field_to_vec3(field: *tc_Field): tc_Vec3 <cimport, nodecl> end
+global function tico_field_to_opt_vec3(field: *tc_Field, value: tc_Vec3): tc_Vec3 <cimport, nodecl> end
+global function tico_field_set_vec3(field: *tc_Field, value: tc_Vec3) <cimport, nodecl> end
+global function tico_field_vec3_imgui(field: *tc_Field) <cimport, nodecl> end
+global function tico_field_draw_vec3(field: *tc_Field, pos: tc_Vec2, scale: float32) <cimport, nodecl> end
+global function tico_field_vec3_to_json(field: *tc_Field, export_meta: cint): *cJSON <cimport, nodecl> end
+global function tico_meta_draw_vec3(a1: *tc_Field, a2: *tc_Field) <cimport, nodecl> end
+global function tico_meta_imgui_vec3(a1: *tc_Field, a2: *tc_Field) <cimport, nodecl> end
+global function tico_field_create_vec4(value: tc_Vec4): *tc_Field <cimport, nodecl> end
+global function tico_field_vec4_from_json(json: *cJSON): *tc_Field <cimport, nodecl> end
+global function tico_field_get_vec4(field: *tc_Field, name: cstring): tc_Vec4 <cimport, nodecl> end
+global function tico_field_get_opt_vec4(field: *tc_Field, name: cstring, opt: tc_Vec4): tc_Vec4 <cimport, nodecl> end
+global function tico_field_add_vec4(field: *tc_Field, name: cstring, value: tc_Vec4): *tc_Field <cimport, nodecl> end
+global function tico_field_to_vec4(field: *tc_Field): tc_Vec4 <cimport, nodecl> end
+global function tico_field_to_opt_vec4(field: *tc_Field, value: tc_Vec4): tc_Vec4 <cimport, nodecl> end
+global function tico_field_set_vec4(field: *tc_Field, value: tc_Vec4) <cimport, nodecl> end
+global function tico_field_vec4_imgui(field: *tc_Field) <cimport, nodecl> end
+global function tico_field_draw_vec4(field: *tc_Field, pos: tc_Vec2, scale: float32) <cimport, nodecl> end
+global function tico_field_vec4_to_json(field: *tc_Field, export_meta: cint): *cJSON <cimport, nodecl> end
+global function tico_meta_draw_vec4(a1: *tc_Field, a2: *tc_Field) <cimport, nodecl> end
+global function tico_meta_imgui_vec4(a1: *tc_Field, a2: *tc_Field) <cimport, nodecl> end
+global function tico_field_create_array(value: *tc_Field): *tc_Field <cimport, nodecl> end
+global function tico_field_array_from_json(json: *cJSON): *tc_Field <cimport, nodecl> end
+global function tico_field_get_array(field: *tc_Field, name: cstring): *tc_Field <cimport, nodecl> end
+global function tico_field_get_opt_array(field: *tc_Field, name: cstring, opt: *tc_Field): *tc_Field <cimport, nodecl> end
+global function tico_field_add_array(field: *tc_Field, name: cstring, value: *tc_Field): *tc_Field <cimport, nodecl> end
+global function tico_field_to_array(field: *tc_Field): *tc_Field <cimport, nodecl> end
+global function tico_field_to_opt_array(field: *tc_Field, value: *tc_Field): *tc_Field <cimport, nodecl> end
+global function tico_field_set_array(field: *tc_Field, value: *tc_Field) <cimport, nodecl> end
+global function tico_field_array_imgui(field: *tc_Field) <cimport, nodecl> end
+global function tico_field_draw_array(field: *tc_Field, pos: tc_Vec2, scale: float32) <cimport, nodecl> end
+global function tico_field_array_to_json(field: *tc_Field, export_meta: cint): *cJSON <cimport, nodecl> end
+global function tico_meta_draw_array(a1: *tc_Field, a2: *tc_Field) <cimport, nodecl> end
+global function tico_meta_imgui_array(a1: *tc_Field, a2: *tc_Field) <cimport, nodecl> end
+global function tico_field_create_object(value: *tc_Field): *tc_Field <cimport, nodecl> end
+global function tico_field_object_from_json(json: *cJSON): *tc_Field <cimport, nodecl> end
+global function tico_field_get_object(field: *tc_Field, name: cstring): *tc_Field <cimport, nodecl> end
+global function tico_field_get_opt_object(field: *tc_Field, name: cstring, opt: *tc_Field): *tc_Field <cimport, nodecl> end
+global function tico_field_add_object(field: *tc_Field, name: cstring, value: *tc_Field): *tc_Field <cimport, nodecl> end
+global function tico_field_to_object(field: *tc_Field): *tc_Field <cimport, nodecl> end
+global function tico_field_to_opt_object(field: *tc_Field, value: *tc_Field): *tc_Field <cimport, nodecl> end
+global function tico_field_set_object(field: *tc_Field, value: *tc_Field) <cimport, nodecl> end
+global function tico_field_object_imgui(field: *tc_Field) <cimport, nodecl> end
+global function tico_field_draw_object(field: *tc_Field, pos: tc_Vec2, scale: float32) <cimport, nodecl> end
+global function tico_field_object_to_json(field: *tc_Field, export_meta: cint): *cJSON <cimport, nodecl> end
+global function tico_meta_draw_object(a1: *tc_Field, a2: *tc_Field) <cimport, nodecl> end
+global function tico_meta_imgui_object(a1: *tc_Field, a2: *tc_Field) <cimport, nodecl> end
+global tc_Tileset: type <cimport, nodecl> = @record{
+  image: *tc_Image,
+  tilesize: tc_Vec2,
+  tilecount: cint,
+  columns: cint,
+  bitmasks: *cint,
+  rect: *tc_Rectf
+}
+global tc_Tilemap: type <cimport, nodecl> = @record{
+  tileset: *tc_Tileset,
+  grid: tc_Vec2,
+  width: cint,
+  height: cint,
+  count: cint,
+  data: *cint
+}
+global tc_Camera: type <cimport, nodecl> = @record{
+  area: tc_Rectf,
+  size: tc_Vec2,
+  offset: tc_Vec2,
+  angle: float32
+}
+global tc_Animation: type <cimport, nodecl> = @record{
+  length: cint,
+  from: cint,
+  to: cint
+}
+global tc_Sprite: type <cimport, nodecl> = @record{
+  animation: [64]cchar,
+  frame: cint,
+  time: float32,
+  speed: float32,
+  image: *tc_Image,
+  width: cint,
+  height: cint,
+  count: cint,
+  animations: map_anim_t
+}
+global function tico_tileset_create(image: *tc_Image, w: cint, h: cint): tc_Tileset <cimport, nodecl> end
+global function tico_tileset_load(path: cstring, image: *tc_Image): tc_Tileset <cimport, nodecl> end
+global function tico_tileset_from_json(tileset: *tc_Tileset, json: *cJSON): cint <cimport, nodecl> end
+global function tico_tileset_destroy(tileset: *tc_Tileset) <cimport, nodecl> end
+global function tico_tileset_set_bitmask(tileset: *tc_Tileset, index: cint, bitmask: cint) <cimport, nodecl> end
+global function tico_tileset_calc_mask_array(tileset: tc_Tileset, bitmask: cint, bitmask_array: *cint) <cimport, nodecl> end
+global function tico_tileset_calc_mask(tileset: tc_Tileset, bitmask_array: *cint): cint <cimport, nodecl> end
+global function tico_tileset_draw(tileset: tc_Tileset, index: cint, x: cint, y: cint, color: tc_Color) <cimport, nodecl> end
+global function tico_tileset_get_rect(tileset: tc_Tileset, index: cint): tc_Rectf <cimport, nodecl> end
+global function tico_tileset_get_from_bitmask(tileset: tc_Tileset, bitmask: cint): cint <cimport, nodecl> end
+global function tico_tilemap_create(tileset: *tc_Tileset, w: cint, h: cint): tc_Tilemap <cimport, nodecl> end
+global function tico_tilemap_load(path: cstring, tileset: *tc_Tileset): tc_Tilemap <cimport, nodecl> end
+global function tico_tilemap_from_json(tilemap: *tc_Tilemap, json: *cJSON): cint <cimport, nodecl> end
+global function tico_tilemap_resize(tilemap: *tc_Tilemap, w: cint, h: cint) <cimport, nodecl> end
+global function tico_tilemap_destroy(map: *tc_Tilemap) <cimport, nodecl> end
+global function tico_tilemap_has_tile(map: tc_Tilemap, x: cint, y: cint): cint <cimport, nodecl> end
+global function tico_tilemap_draw(map: tc_Tilemap) <cimport, nodecl> end
+global function tico_tilemap_draw_part(map: tc_Tilemap, part: tc_Rect, x: cint, y: cint) <cimport, nodecl> end
+global function tico_tilemap_update(map: *tc_Tilemap) <cimport, nodecl> end
+global function tico_tilemap_autotile(tilemap: tc_Tilemap, index: cint): cint <cimport, nodecl> end
+global function tico_tilemap_autotile_pos(tilemap: tc_Tilemap, x: cint, y: cint): cint <cimport, nodecl> end
+global function tico_tilemap_insert(map: *tc_Tilemap, index: cint) <cimport, nodecl> end
+global function tico_tilemap_remove(map: *tc_Tilemap, index: cint) <cimport, nodecl> end
+global function tico_tilemap_insert_pos(map: *tc_Tilemap, index: cint) <cimport, nodecl> end
+global function tico_tilemap_get_index(map: tc_Tilemap, x: cint, y: cint): cint <cimport, nodecl> end
+global function tico_tilemap_get_position(map: tc_Tilemap, index: cint, v: *tc_Vec2) <cimport, nodecl> end
+global function tico_camera_create(x: float32, y: float32, w: float32, h: float32): tc_Camera <cimport, nodecl> end
+global function tico_camera_destroy(camera: *tc_Camera) <cimport, nodecl> end
+global function tico_camera_attach(camera: tc_Camera) <cimport, nodecl> end
+global function tico_camera_detach() <cimport, nodecl> end
+global function tico_camera_set_pos(camera: *tc_Camera, pos: tc_Vec2) <cimport, nodecl> end
+global function tico_camera_set_scale(camera: *tc_Camera, scale: tc_Vec2) <cimport, nodecl> end
+global function tico_camera_set_size(camera: *tc_Camera, size: tc_Vec2) <cimport, nodecl> end
+global function tico_camera_get_pos(camera: tc_Camera, pos: *tc_Vec2) <cimport, nodecl> end
+global function tico_camera_get_scale(camera: tc_Camera, scale: *tc_Vec2) <cimport, nodecl> end
+global function tico_camera_get_size(camera: tc_Camera, size: *tc_Vec2) <cimport, nodecl> end
+global function tico_sprite_create(image: *tc_Image, w: cint, h: cint): tc_Sprite <cimport, nodecl> end
+global function tico_sprite_from_json(sprite: *tc_Sprite, json: *cJSON): cint <cimport, nodecl> end
+global function tico_sprite_destroy(sprite: *tc_Sprite) <cimport, nodecl> end
+global function tico_sprite_update(sprite: *tc_Sprite) <cimport, nodecl> end
+global function tico_animation_create(from: cint, to: cint): tc_Animation <cimport, nodecl> end
+global function tico_sprite_add_animation(sprite: *tc_Sprite, name: cstring, from: cint, to: cint) <cimport, nodecl> end
+global function tico_sprite_play(sprite: *tc_Sprite, name: cstring) <cimport, nodecl> end
+global function tico_sprite_stop(sprite: *tc_Sprite) <cimport, nodecl> end
+global function tico_sprite_get_animation(sprite: *tc_Sprite): cstring <cimport, nodecl> end
+global function tico_sprite_draw_frame(sprite: tc_Sprite, frame: cint, x: float32, y: float32, color: tc_Color) <cimport, nodecl> end
+global function tico_sprite_draw_frame_scale(sprite: tc_Sprite, frame: cint, x: float32, y: float32, sx: float32, sy: float32, color: tc_Color) <cimport, nodecl> end
+global function tico_sprite_draw_frame_ex(sprite: tc_Sprite, frame: cint, x: float32, y: float32, angle: float32, sx: float32, sy: float32, cx: float32, cy: float32, color: tc_Color) <cimport, nodecl> end
+global function tico_sprite_draw(sprite: tc_Sprite, x: float32, y: float32, color: tc_Color) <cimport, nodecl> end
+global function tico_sprite_draw_scale(sprite: tc_Sprite, x: float32, y: float32, sx: float32, sy: float32, color: tc_Color) <cimport, nodecl> end
+global function tico_sprite_draw_ex(sprite: tc_Sprite, x: float32, y: float32, angle: float32, sx: float32, sy: float32, cx: float32, cy: float32, color: tc_Color) <cimport, nodecl> end
+global tc_Timer: type <cimport, nodecl> = @record{
+  currentTime: float64,
+  lastTime: float64,
+  fpsLastTime: float64,
+  delta: float32,
+  fps: cint,
+  frames: cint
+}
+global function tico_timer_init(timer: *tc_Timer): cint <cimport, nodecl> end
+global function tico_timer_terminate(timer: *tc_Timer) <cimport, nodecl> end
+global tc_Plugin: type <cimport, nodecl> = @record{
+  data: pointer,
+  enable: PluginEnable,
+  disable: PluginDisable,
+  load: PluginLoad,
+  update: PluginUpdate,
+  pre_draw: PluginPreDraw,
+  draw: PluginDraw,
+  post_draw: PluginPostDraw,
+  terminate: PluginTerminate
+}
+global tc_PluginModule: type <cimport, nodecl> = @record{
+  plugins: map_plugin_t,
+  active_plugins: vec_str_t
+}
+global function tico_plugin_create(): tc_Plugin <cimport, nodecl> end
+global function tico_plugin_editor(): tc_Plugin <cimport, nodecl> end
+global function tico_plugin_lua(): tc_Plugin <cimport, nodecl> end
+global function tico_plugin_resource(): tc_Plugin <cimport, nodecl> end
+global function tico_plugin_destroy(plugin: *tc_Plugin): cint <cimport, nodecl> end
+global function tico_plugin_enable(plugin: *tc_Plugin) <cimport, nodecl> end
+global function tico_plugin_disable(plugin: *tc_Plugin) <cimport, nodecl> end
+global function tico_plugin_update(plugin: *tc_Plugin) <cimport, nodecl> end
+global function tico_plugin_begin_draw(plugin: *tc_Plugin) <cimport, nodecl> end
+global function tico_plugin_draw(plugin: *tc_Plugin) <cimport, nodecl> end
+global function tico_plugin_end_draw(plugin: *tc_Plugin) <cimport, nodecl> end
+global tc_Lua: type <cimport, nodecl> = @record{
+  L: *lua_State
+}
+global function tico_plugin_lua_load(lua: *tc_Lua): cint <cimport, nodecl> end
+global function tico_plugin_lua_update(lua: *tc_Lua): cint <cimport, nodecl> end
+global function tico_plugin_lua_draw(lua: *tc_Lua): cint <cimport, nodecl> end
+global function tico_plugin_lua_get_state(): *lua_State <cimport, nodecl> end
+global function tico_plugin_lua_add_lib(name: cstring, Function: LuaFunction) <cimport, nodecl> end
+global function tico_plugin_lua_pcall(name: cstring, n: cint) <cimport, nodecl> end
+global tc_Resource: type <cimport, nodecl, forwarddecl> = @record{}
+global tc_ResourceDep: type <cimport, nodecl, forwarddecl> = @record{}
+global tc_ResourcePlugin: type <cimport, nodecl, forwarddecl> = @record{}
+global tc_ResourceDep: type <cimport, nodecl> = @record{
+  name: [256]cchar,
+  res_key: [256]cchar,
+  res: *tc_Resource
+}
+global TIC_RESOURCE_ERROR: cint <comptime> = 1
+global TIC_RESOURCE_LOADED: cint <comptime> = 2
+global TIC_RESOURCE_MISSING_DEP: cint <comptime> = 4
+global TIC_RESOURCE_CHANGED: cint <comptime> = 8
+global tc_Resource: type <cimport, nodecl> = @record{
+  status: cint,
+  changed: cint,
+  type: [64]cchar,
+  uuid: [9]cchar,
+  name: [256]cchar,
+  path: [256]cchar,
+  data: pointer
+}
+global tc_ResourceManager: type <cimport, nodecl, forwarddecl> = @record{}
+global tc_ResourcePlugin: type <cimport, nodecl> = @record{
+  loader: PluginResourceLoader,
+  store: PluginResourceStore
+}
+global function tico_plugin_resource_init(loader: PluginResourceLoader, store: PluginResourceStore): tc_ResourcePlugin <cimport, nodecl> end
+global function tico_plugin_resource_json(): tc_ResourcePlugin <cimport, nodecl> end
+global function tico_plugin_resource_json_loader(manager: *tc_ResourceManager, res: *tc_Resource, json: *cJSON): tc_Resource <cimport, nodecl> end
+global function tico_plugin_resource_json_store(manager: *tc_ResourceManager, res: *tc_Resource): *cJSON <cimport, nodecl> end
+global function tico_plugin_resource_image(): tc_ResourcePlugin <cimport, nodecl> end
+global function tico_plugin_resource_image_loader(manager: *tc_ResourceManager, res: *tc_Resource, json: *cJSON): tc_Resource <cimport, nodecl> end
+global function tico_plugin_resource_image_store(manager: *tc_ResourceManager, res: *tc_Resource): *cJSON <cimport, nodecl> end
+global function tico_plugin_resource_sprite(): tc_ResourcePlugin <cimport, nodecl> end
+global function tico_plugin_resource_sprite_loader(manager: *tc_ResourceManager, res: *tc_Resource, json: *cJSON): tc_Resource <cimport, nodecl> end
+global function tico_plugin_resource_sprite_store(manager: *tc_ResourceManager, res: *tc_Resource): *cJSON <cimport, nodecl> end
+global function tico_plugin_resource_tileset(): tc_ResourcePlugin <cimport, nodecl> end
+global function tico_plugin_resource_tileset_loader(manager: *tc_ResourceManager, res: *tc_Resource, json: *cJSON): tc_Resource <cimport, nodecl> end
+global function tico_plugin_resource_tileset_store(manager: *tc_ResourceManager, res: *tc_Resource): *cJSON <cimport, nodecl> end
+global function tico_plugin_resource_tilemap(): tc_ResourcePlugin <cimport, nodecl> end
+global function tico_plugin_resource_tilemap_loader(manager: *tc_ResourceManager, res: *tc_Resource, json: *cJSON): tc_Resource <cimport, nodecl> end
+global function tico_plugin_resource_tilemap_store(manager: *tc_ResourceManager, res: *tc_Resource): *cJSON <cimport, nodecl> end
+global function tico_plugin_resource_object(): tc_ResourcePlugin <cimport, nodecl> end
+global function tico_plugin_resource_object_loader(manager: *tc_ResourceManager, res: *tc_Resource, json: *cJSON): tc_Resource <cimport, nodecl> end
+global function tico_plugin_resource_object_store(manager: *tc_ResourceManager, res: *tc_Resource): *cJSON <cimport, nodecl> end
+global tc_ResourceManager: type <cimport, nodecl> = @record{
+  path: [256]cchar,
+  resources: map_resource_t,
+  plugins: map_resplugin_t,
+  missing: map_str_t,
+  keys: map_str_t,
+  lua: *tc_Lua,
+  fields: *tc_Field
+}
+global function tico_resource_init(resource: *tc_Resource) <cimport, nodecl> end
+global function tico_resource_change_lua(resource: *tc_Resource): cint <cimport, nodecl> end
+global function tico_plugin_resources_init(manager: *tc_ResourceManager): cint <cimport, nodecl> end
+global function tico_plugin_resources_default_loaders(manager: *tc_ResourceManager): cint <cimport, nodecl> end
+global function tico_plugin_resources_load(manager: *tc_ResourceManager, type: cstring, name: cstring, path: cstring): cint <cimport, nodecl> end
+global function tico_plugin_resources_from_json(manager: *tc_ResourceManager, json: *cJSON): *tc_Resource <cimport, nodecl> end
+global function tico_plugin_resources_destroy(manager: *tc_ResourceManager): cint <cimport, nodecl> end
+global function tico_plugin_resources_check_json_deps(manager: *tc_ResourceManager, json: *cJSON): cint <cimport, nodecl> end
+global function tico_plugin_resources_update_missing(manager: *tc_ResourceManager) <cimport, nodecl> end
+global function tico_plugin_resources_new_dep(name: cstring, res: *tc_Resource): tc_ResourceDep <cimport, nodecl> end
+global function tico_plugin_resources_push_dep(res: *tc_Resource, name: cstring, resource_name: cstring) <cimport, nodecl> end
+global function tico_plugin_resources_change_dep(manager: *tc_ResourceManager, name: cstring, res_name: cstring) <cimport, nodecl> end
+global function tico_plugin_resources_new_type(manager: *tc_ResourceManager, type: cstring) <cimport, nodecl> end
+global function tico_plugin_resources_update_resource(resource: *tc_Resource) <cimport, nodecl> end
+global function tico_plugin_resources_add(manager: *tc_ResourceManager, type: cstring, name: cstring, resource: *tc_Resource): cint <cimport, nodecl> end
+global function tico_plugin_resources_store(resource: *tc_Resource): cint <cimport, nodecl> end
+global function tico_plugin_resources_get_by_field(field: *tc_Field): *tc_Resource <cimport, nodecl> end
+global function tico_plugin_resources_get_by_key(key: cstring): *tc_Resource <cimport, nodecl> end
+global function tico_plugin_resources_get_by_uuid(uuid: cstring): *tc_Resource <cimport, nodecl> end
+global function tico_plugin_resources_get(type: cstring, name: cstring): *tc_Resource <cimport, nodecl> end
+global tc_PanelWidget: type <cimport, nodecl> = @record{
+  grid_size: cint,
+  origin: tc_Vec2,
+  cursor_pos: tc_Vec2,
+  size: tc_Vec2,
+  bg_canvas: tc_Canvas,
+  bg_colors: [2]tc_Color,
+  scale: float32,
+  bg_color: cuint,
+  line_color: cuint,
+  cross_color: cuint
+}
+global function tico_widget_panel_create(grid_size: cint): tc_PanelWidget <cimport, nodecl> end
+global function tico_widget_panel_destroy(widget: *tc_PanelWidget) <cimport, nodecl> end
+global function tico_widget_panel_origin(widget: *tc_PanelWidget, out: *tc_Vec2) <cimport, nodecl> end
+global function tico_widget_panel_begin(widget: *tc_PanelWidget): cint <cimport, nodecl> end
+global function tico_widget_panel_end(widget: *tc_PanelWidget) <cimport, nodecl> end
+global tc_GridWidget: type <cimport, nodecl> = @record{
+  bg: tc_Canvas,
+  grid: tc_Vec2,
+  size: tc_Vec2,
+  scrolling: tc_Vec2,
+  texture: *tc_Texture,
+  tex_uv: tc_Rectf,
+  flags: cint,
+  state: cint,
+  mouse_grid: tc_Vec2,
+  scale: cint,
+  cell: cint
+}
+global function tico_widget_grid_create(tile: tc_Vec2, size: tc_Vec2, flags: cint): tc_GridWidget <cimport, nodecl> end
+global function tico_widget_grid_destroy(widget: *tc_GridWidget) <cimport, nodecl> end
+global function tico_widget_grid_set_texture(widget: *tc_GridWidget, tex: *tc_Texture, tex_uv: tc_Rectf) <cimport, nodecl> end
+global function tico_widget_grid_update(widget: *tc_GridWidget, panel: *tc_PanelWidget): cint <cimport, nodecl> end
+global function tico_widget_grid_draw(widget: *tc_GridWidget, panel: *tc_PanelWidget): cint <cimport, nodecl> end
+global tc_Object: type <cimport, nodecl> = @record{
+  data: *tc_Field
+}
+global tc_ObjectWidget: type <cimport, nodecl> = @record{
+  selected: *tc_Object,
+  uuid: [8]cchar,
+  object_data: *tc_Field,
+  objects: map_object_t,
+  panel: tc_PanelWidget,
+  flags: cint,
+  last_x: cint,
+  last_y: cint
+}
+global function tico_object_create(type: cstring, position: tc_Vec2): tc_Object <cimport, nodecl> end
+global function tico_object_from_json(json: *tc_Field): tc_Object <cimport, nodecl> end
+global function tico_object_update(object: *tc_Object) <cimport, nodecl> end
+global function tico_object_draw(object: *tc_Object, origin: tc_Vec2, scale: float32, selected: cint) <cimport, nodecl> end
+global function tico_object_is_hovered(object: *tc_Object, origin: tc_Vec2, scale: float32): cint <cimport, nodecl> end
+global function tico_widget_object_init(widget: *tc_ObjectWidget, data: *tc_Field): cint <cimport, nodecl> end
+global function tico_widget_object_deinit(widget: *tc_ObjectWidget) <cimport, nodecl> end
+global function tico_widget_object_update(widget: *tc_ObjectWidget, panel: *tc_PanelWidget): cint <cimport, nodecl> end
+global function tico_widget_object_draw(widget: *tc_ObjectWidget, panel: *tc_PanelWidget, active: *cint): cint <cimport, nodecl> end
+global function tico_widget_object_edit(widget: *tc_ObjectWidget, object: *tc_Object): cint <cimport, nodecl> end
+global function tico_widget_object_selected(widget: *tc_ObjectWidget, object: *tc_Object, origin: tc_Vec2, scale: float32): cint <cimport, nodecl> end
+global function tico_widget_object_resized(widget: *tc_ObjectWidget, object: *tc_Object): cint <cimport, nodecl> end
+global tc_EditorFolder: type <cimport, nodecl, forwarddecl> = @record{}
+global tc_EditorWindow: type <cimport, nodecl, forwarddecl> = @record{}
+global tc_GridTool: type <cimport, nodecl> = @record{
+  camera: tc_Camera,
+  canvas: tc_Canvas,
+  bg: tc_Canvas,
+  grid: tc_Vec2,
+  size: tc_Vec2,
+  scrolling: tc_Vec2,
+  scale: cint
+}
+global tc_EditorFolder: type <cimport, nodecl> = @record{
+  name: [64]cchar,
+  child: *tc_EditorFolder,
+  next: *tc_EditorFolder,
+  res: list_str_t
+}
+global tc_EditorPlugin: type <cimport, nodecl> = @record{
+  editor: pointer,
+  size: cint,
+  create: EditorPluginUpdate,
+  init: EditorPluginInit,
+  update: EditorPluginUpdate,
+  draw: EditorPluginUpdate,
+  draw_panel: EditorPluginUpdate,
+  destroy: EditorPluginUpdate,
+  save: EditorPluginUpdate
+}
+global tc_EditorWindow: type <cimport, nodecl> = @record{
+  title: [128]cchar,
+  open: cint,
+  res: *tc_Resource,
+  editor: pointer,
+  flags: cint,
+  plugin: tc_EditorPlugin
+}
+global tc_Editor: type <cimport, nodecl> = @record{
+  size: cint,
+  game_canvas: tc_Canvas,
+  manager: *tc_ResourceManager,
+  lua: *tc_Lua,
+  plugins: map_editorplugin_t,
+  windows: map_int_t,
+  folders: *tc_Field,
+  paused: cint,
+  plugins_window: cint,
+  imgui_demo: cint,
+  window_pool: [32]tc_EditorWindow,
+  current_window: *tc_EditorWindow
+}
+global function tico_plugin_editor_create(init: EditorPluginInit, update: EditorPluginUpdate, draw: EditorPluginUpdate, draw_panel: EditorPluginUpdate): tc_EditorPlugin <cimport, nodecl> end
+global function tico_plugin_editor_load(editor: *tc_Editor): cint <cimport, nodecl> end
+global function tico_plugin_editor_update(editor: *tc_Editor): cint <cimport, nodecl> end
+global function tico_plugin_editor_draw(editor: *tc_Editor): cint <cimport, nodecl> end
+global function tico_plugin_editor_add_plugin(editor: *tc_Editor, type: cstring, plugin: *tc_EditorPlugin): cint <cimport, nodecl> end
+global function tico_plugin_editor_open(uuid: cstring): cint <cimport, nodecl> end
+global function tico_editor_set_bg(canvas: tc_Canvas, size: cint, col1: tc_Color, col2: tc_Color) <cimport, nodecl> end
+global function tico_editor_init_window(window: *tc_EditorWindow, plugin: *tc_EditorPlugin) <cimport, nodecl> end
+global function tico_editor_destroy_window(window: *tc_EditorWindow) <cimport, nodecl> end
+global function tico_editor_draw_window(window: *tc_EditorWindow): cint <cimport, nodecl> end
+global function tico_editor_draw_window_panel(window: *tc_EditorWindow) <cimport, nodecl> end
+global TIC_AUDIO_USAGE_: type <cimport, nodecl, using> = @enum(cint){
+  TIC_AUDIO_STREAM = 0,
+  TIC_AUDIO_STATIC = 1
+}
+global tc_AudioData: type <cimport, nodecl> = @record{
+  usage: TIC_AUDIO_USAGE_,
+  data: *cuchar,
+  filename: *cuchar,
+  size: csize,
+  refs: cint
+}
+global tc_AudioBuffer: type <cimport, nodecl> = @record{
+  decoder: ma_decoder,
+  id: cuchar,
+  volume: float32,
+  pitch: float32,
+  playing: cint,
+  paused: cint,
+  loop: cint,
+  loaded: cint,
+  data: *tc_AudioData,
+  currentReadPos: csize
+}
+global tc_Sound: type <cimport, nodecl> = @record{
+  audioBuffer: *tc_AudioBuffer
+}
+global function tico_audio_init(): cint <cimport, nodecl> end
+global function tico_audio_start_device(): cint <cimport, nodecl> end
+global function tico_audio_stop_device(): cint <cimport, nodecl> end
+global function tico_audio_terminate() <cimport, nodecl> end
+global function tico_audio_set_master_volume(volume: float32) <cimport, nodecl> end
+global function tico_audio_get_id(buffer: *tc_AudioBuffer): cint <cimport, nodecl> end
+global function tico_audio_get_from_id(id: cuint): *tc_AudioBuffer <cimport, nodecl> end
+global function tico_buffer_load(filename: cstring, usage: TIC_AUDIO_USAGE_): *tc_AudioBuffer <cimport, nodecl> end
+global function tico_buffer_play(audioBuffer: *tc_AudioBuffer) <cimport, nodecl> end
+global function tico_buffer_stop(audioBuffer: *tc_AudioBuffer) <cimport, nodecl> end
+global function tico_buffer_pause(audioBuffer: *tc_AudioBuffer) <cimport, nodecl> end
+global function tico_buffer_unload(audioBuffer: *tc_AudioBuffer) <cimport, nodecl> end
+global function tico_buffer_is_playing(audioBuffer: *tc_AudioBuffer): cint <cimport, nodecl> end
+global function tico_buffer_is_paused(audioBuffer: *tc_AudioBuffer): cint <cimport, nodecl> end
+global function tico_buffer_set_volume(audioBuffer: *tc_AudioBuffer, volume: float32) <cimport, nodecl> end
+global function tico_sound_load(filename: cstring, usage: TIC_AUDIO_USAGE_): tc_Sound <cimport, nodecl> end
+global function tico_sound_unload(sound: tc_Sound) <cimport, nodecl> end
+global function tico_sound_play(sound: tc_Sound) <cimport, nodecl> end
+global function tico_sound_stop(sound: tc_Sound) <cimport, nodecl> end
+global function tico_sound_pause(sound: tc_Sound) <cimport, nodecl> end
+global function tico_sound_is_playing(sound: tc_Sound): cint <cimport, nodecl> end
+global function tico_sound_is_paused(sound: tc_Sound): cint <cimport, nodecl> end
+global function tico_sound_set_volume(sound: tc_Sound, volume: float32) <cimport, nodecl> end
+global function tico_audio_data_free(data: *tc_AudioData) <cimport, nodecl> end
+global TIC_DRAW_MODE_: type <cimport, nodecl, using> = @enum(cint){
+  TIC_TRIANGLES = 0,
+  TIC_LINES = 1
+}
+global TIC_FRAGMENT_SHADERS_: type <cimport, nodecl, using> = @enum(cint){
+  TIC_DEFAULT_FRAGMENT = 0,
+  TIC_GBA_FRAG_SHADER = 1,
+  TIC_COLOR8_FRAG_SHADER = 2,
+  TIC_COLOR16_FRAG_SHADER = 3,
+  TIC_OUTLINE_FRAG_SHADER = 4
+}
+global TIC_VERTEX_SHADERS_: type <cimport, nodecl, using> = @enum(cint){
+  TIC_DEFAULT_VERTEX = 0
+}
+global tc_Vertex: type <cimport, nodecl> = @record{
+  __unnamed1: union{
+    data: [8]float32,
+    __unnamed1: record{
+      pos: [2]float32,
+      color: [4]float32,
+      uv: [2]float32
+    },
+    __unnamed2: record{
+      x: float32,
+      y: float32,
+      r: float32,
+      g: float32,
+      b: float32,
+      a: float32,
+      s: float32,
+      t: float32
+    }
+  }
+}
+global tc_DrawCall: type <cimport, nodecl> = @record{
+  indexStart: cuint,
+  indexCount: cuint,
+  vertexCount: cuint,
+  mode: TIC_DRAW_MODE_,
+  textureId: cuint,
+  modelview: tc_Matrix,
+  clip: tc_Rect
+}
+global tc_Batch: type <cimport, nodecl> = @record{
+  indices: *cuint,
+  vertices: *tc_Vertex,
+  verticesPtr: *tc_Vertex,
+  drawCalls: [128]tc_DrawCall,
+  drawCallIndex: cuint,
+  totalIndexCount: cuint,
+  totalVertexCount: cuint,
+  maxQuads: cuint,
+  maxVertices: cuint,
+  maxIndices: cuint,
+  vao: cuint,
+  vbo: [2]cuint,
+  currentClip: tc_Rect,
+  currentTexture: tc_Texture
+}
+global tc_Render: type <cimport, nodecl> = @record{
+  batch: tc_Batch,
+  state: record{
+    defaultShader: tc_Shader,
+    currentShader: tc_Shader,
+    canvasIndex: cint,
+    shaderIndex: cint,
+    vertexShaders: [32]cint,
+    fragmentShaders: [32]cint,
+    defaultVertexShader: cint,
+    defaultFragmentShader: cint,
+    defaultTextureId: cuint,
+    currentTextureId: cuint,
+    shapeTexture: tc_Texture,
+    drawCount: cuint,
+    currentCanvas: tc_Canvas,
+    modelview: tc_Matrix,
+    defaultCanvas: tc_Canvas,
+    camera: *tc_Matrix,
+    currentMatrix: cint,
+    backToDefaultCanvas: function(pointer)
+  }
+}
+global function tico_render_init(render: *tc_Render): cint <cimport, nodecl> end
+global function tico_render_terminate(render: *tc_Render) <cimport, nodecl> end
+global function tico_render_push_canvas(canvas: tc_Canvas) <cimport, nodecl> end
+global function tico_render_pop_canvas() <cimport, nodecl> end
+global function tico_render_push_shader(shader: tc_Shader) <cimport, nodecl> end
+global function tico_render_pop_shader() <cimport, nodecl> end
+global function tico_render_set_texture(render: *tc_Render, texture: tc_Texture) <cimport, nodecl> end
+global function tico_render_set_clip(render: *tc_Render, rect: tc_Rect) <cimport, nodecl> end
+global function tico_render_set_draw_mode(render: *tc_Render, mode: TIC_DRAW_MODE_) <cimport, nodecl> end
+global function tico_render_set_transform(render: *tc_Render, matrix: tc_Matrix) <cimport, nodecl> end
+global function tico_render_align(render: *tc_Render) <cimport, nodecl> end
+global function tico_render_update_count(render: *tc_Render, indexCount: cint, vertexCount: cint) <cimport, nodecl> end
+global function tico_render_add_rect(render: *tc_Render, dest: tc_Rectf, source: tc_Rectf, color: tc_Color) <cimport, nodecl> end
+global function tico_render_add_rect_ex(render: *tc_Render, dest: tc_Rectf, source: tc_Rectf, angle: float32, origin: tc_Vec2, color: tc_Color) <cimport, nodecl> end
+global function tico_render_add_triangle(render: *tc_Render, p0: tc_Vec2, p1: tc_Vec2, p2: tc_Vec2, color: tc_Color) <cimport, nodecl> end
+global function tico_render_add_circle(render: *tc_Render, p: tc_Vec2, radius: float32, sides: cint, color: tc_Color) <cimport, nodecl> end
+global function tico_render_add_line(render: *tc_Render, p0: tc_Vec2, p1: tc_Vec2, color: tc_Color) <cimport, nodecl> end
+global function tico_render_begin(render: *tc_Render) <cimport, nodecl> end
+global function tico_render_flush(render: *tc_Render) <cimport, nodecl> end
+global function tico_render_draw(render: *tc_Render) <cimport, nodecl> end
+global function tico_render_clear(render: *tc_Render) <cimport, nodecl> end
+global function tico_render_is_empty(render: *tc_Render): cint <cimport, nodecl> end
+global function tico_render_is_full(render: *tc_Render, vertices: cint): cint <cimport, nodecl> end
+global function tico_render_draw_reset(render: *tc_Render) <cimport, nodecl> end
+global function tico_render_reset_if_full(render: *tc_Render, vertex: cint) <cimport, nodecl> end
+global function tico_drawcall_create(start: cint, texture: cint, mode: TIC_DRAW_MODE_, clip: *tc_Rect, modelview: tc_Matrix): tc_DrawCall <cimport, nodecl> end
+global function tico_drawcall_destroy(call: *tc_DrawCall) <cimport, nodecl> end
+global function tico_batch_create(texture: tc_Texture, maxQuads: cint): tc_Batch <cimport, nodecl> end
+global function tico_batch_destroy(batch: *tc_Batch) <cimport, nodecl> end
+global function tico_batch_get_transform(batch: *tc_Batch): *tc_Matrix <cimport, nodecl> end
+global function tico_batch_next_drawcall(batch: *tc_Batch, inv: cint): *tc_DrawCall <cimport, nodecl> end
+global function tico_batch_set_texture(batch: *tc_Batch, texture: tc_Texture) <cimport, nodecl> end
+global function tico_batch_set_clip(batch: *tc_Batch, rect: tc_Rect) <cimport, nodecl> end
+global function tico_batch_set_draw_mode(batch: *tc_Batch, mode: TIC_DRAW_MODE_) <cimport, nodecl> end
+global function tico_batch_set_transform(batch: *tc_Batch, matrix: tc_Matrix) <cimport, nodecl> end
+global function tico_batch_align(batch: *tc_Batch) <cimport, nodecl> end
+global function tico_batch_update_count(batch: *tc_Batch, indexCount: cint, vertexCount: cint) <cimport, nodecl> end
+global function tico_batch_add_rect(batch: *tc_Batch, dest: tc_Rectf, source: tc_Rectf, color: tc_Color) <cimport, nodecl> end
+global function tico_batch_add_line_rect(batch: *tc_Batch, dest: tc_Rectf, src: tc_Rectf, color: tc_Color) <cimport, nodecl> end
+global function tico_batch_add_rect_ex(batch: *tc_Batch, dest: tc_Rectf, source: tc_Rectf, angle: float32, cx: float32, cy: float32, color: tc_Color) <cimport, nodecl> end
+global function tico_batch_add_triangle(batch: *tc_Batch, x0: cint, y0: cint, x1: cint, y1: cint, x2: cint, y2: cint, color: tc_Color) <cimport, nodecl> end
+global function tico_batch_add_circle(batch: *tc_Batch, x: cint, y: cint, radius: float32, sides: cint, color: tc_Color) <cimport, nodecl> end
+global function tico_batch_add_line(batch: *tc_Batch, x0: cint, y0: cint, x1: cint, y1: cint, color: tc_Color) <cimport, nodecl> end
+global function tico_batch_begin(batch: *tc_Batch) <cimport, nodecl> end
+global function tico_batch_flush(batch: *tc_Batch) <cimport, nodecl> end
+global function tico_batch_draw(batch: *tc_Batch) <cimport, nodecl> end
+global function tico_batch_clear(batch: *tc_Batch) <cimport, nodecl> end
+global function tico_batch_is_empty(batch: tc_Batch): cint <cimport, nodecl> end
+global function tico_batch_is_full(batch: tc_Batch, vertices: cint): cint <cimport, nodecl> end
+global function tico_batch_draw_reset(batch: *tc_Batch) <cimport, nodecl> end
+global function tico_batch_reset_if_full(batch: *tc_Batch, vertex: cint) <cimport, nodecl> end
+global tc_Graphics: type <cimport, nodecl> = @record{
+  default_font: tc_Font,
+  canvas_stack: stack_canvas_t,
+  shader_stack: stack_shader_t,
+  matrix_stack: stack_matrix_t,
+  canvas_vec: vec_canvas_t,
+  render: tc_Render,
+  default_texture: tc_Texture,
+  default_vertex: cint,
+  default_fragment: cint,
+  default_shader: tc_Shader
+}
+global function tico_graphics_init(graphics: *tc_Graphics): cint <cimport, nodecl> end
+global function tico_graphics_terminate(graphics: *tc_Graphics) <cimport, nodecl> end
+global function tico_texture_create(data: pointer, width: cint, height: cint, mode: cint): tc_Texture <cimport, nodecl> end
+global function tico_texture_load(filename: cstring): tc_Texture <cimport, nodecl> end
+global function tico_texture_from_memory(data: pointer, bufSize: cint): tc_Texture <cimport, nodecl> end
+global function tico_texture_destroy(texture: *tc_Texture) <cimport, nodecl> end
+global function tico_texture_get_width(texture: tc_Texture): cint <cimport, nodecl> end
+global function tico_texture_get_height(texture: tc_Texture): cint <cimport, nodecl> end
+global function tico_texture_get_size(texture: tc_Texture, width: *cint, height: *cint) <cimport, nodecl> end
+global function tico_texture_set_filter(texture: *tc_Texture, min: cint, mag: cint) <cimport, nodecl> end
+global function tico_texture_set_wrap(texture: *tc_Texture, min: cint, mag: cint) <cimport, nodecl> end
+global function tico_texture_get_filter(texture: tc_Texture, min: *cint, mag: *cint) <cimport, nodecl> end
+global function tico_texture_get_wrap(texture: tc_Texture, min: *cint, mag: *cint) <cimport, nodecl> end
+global function tico_texture_draw(texture: tc_Texture, dest: tc_Rectf, source: tc_Rectf, color: tc_Color) <cimport, nodecl> end
+global function tico_texture_draw_ex(texture: tc_Texture, dest: tc_Rectf, source: tc_Rectf, angle: float32, origin: tc_Vec2, color: tc_Color) <cimport, nodecl> end
+global function tico_image_create(data: pointer, width: cint, height: cint, mode: cint): tc_Image <cimport, nodecl> end
+global function tico_image_load(image: cstring): tc_Image <cimport, nodecl> end
+global function tico_image_from_memory(data: pointer, bufSize: cint): tc_Image <cimport, nodecl> end
+global function tico_image_destroy(image: *tc_Image) <cimport, nodecl> end
+global function tico_image_get_width(image: tc_Image): cint <cimport, nodecl> end
+global function tico_image_get_height(image: tc_Image): cint <cimport, nodecl> end
+global function tico_image_get_size(image: tc_Image, width: *cint, height: *cint) <cimport, nodecl> end
+global function tico_image_set_filter(image: *tc_Image, min: cint, mag: cint) <cimport, nodecl> end
+global function tico_image_get_filter(image: tc_Image, min: *cint, mag: *cint) <cimport, nodecl> end
+global function tico_image_set_wrap(image: *tc_Image, min: cint, mag: cint) <cimport, nodecl> end
+global function tico_image_get_wrap(image: tc_Image, min: *cint, mag: *cint) <cimport, nodecl> end
+global function tico_image_draw(image: tc_Image, x: float32, y: float32, color: tc_Color) <cimport, nodecl> end
+global function tico_image_draw_scale(image: tc_Image, x: float32, y: float32, sx: float32, sy: float32, color: tc_Color) <cimport, nodecl> end
+global function tico_image_draw_ex(image: tc_Image, x: float32, y: float32, angle: float32, sx: float32, sy: float32, cx: float32, cy: float32, color: tc_Color) <cimport, nodecl> end
+global function tico_image_draw_part(image: tc_Image, part: tc_Rectf, x: float32, y: float32, color: tc_Color) <cimport, nodecl> end
+global function tico_image_draw_part_scale(image: tc_Image, part: tc_Rectf, x: float32, y: float32, sx: float32, sy: float32, color: tc_Color) <cimport, nodecl> end
+global function tico_image_draw_part_ex(image: tc_Image, part: tc_Rectf, x: float32, y: float32, angle: float32, sx: float32, sy: float32, cx: float32, cy: float32, color: tc_Color) <cimport, nodecl> end
+global function tico_canvas_create(width: cint, height: cint): tc_Canvas <cimport, nodecl> end
+global function tico_canvas_destroy(canvas: *tc_Canvas) <cimport, nodecl> end
+global function tico_canvas_get_width(canvas: tc_Canvas): cint <cimport, nodecl> end
+global function tico_canvas_get_height(canvas: tc_Canvas): cint <cimport, nodecl> end
+global function tico_canvas_get_size(canvas: tc_Canvas, width: *cint, height: *cint) <cimport, nodecl> end
+global function tico_canvas_attach(canvas: tc_Canvas) <cimport, nodecl> end
+global function tico_canvas_detach() <cimport, nodecl> end
+global function tico_canvas_disable() <cimport, nodecl> end
+global function tico_canvas_draw(canvas: tc_Canvas, x: float32, y: float32, color: tc_Color) <cimport, nodecl> end
+global function tico_canvas_draw_scale(canvas: tc_Canvas, x: float32, y: float32, sx: float32, sy: float32, color: tc_Color) <cimport, nodecl> end
+global function tico_canvas_draw_ex(canvas: tc_Canvas, x: float32, y: float32, angle: float32, sx: float32, sy: float32, cx: float32, cy: float32, color: tc_Color) <cimport, nodecl> end
+global function tico_canvas_draw_part(canvas: tc_Canvas, rect: tc_Rectf, x: float32, y: float32, color: tc_Color) <cimport, nodecl> end
+global function tico_canvas_draw_part_scale(canvas: tc_Canvas, rect: tc_Rectf, x: float32, y: float32, sx: float32, sy: float32, color: tc_Color) <cimport, nodecl> end
+global function tico_canvas_draw_part_ex(canvas: tc_Canvas, rect: tc_Rectf, x: float32, y: float32, angle: float32, sx: float32, sy: float32, cx: float32, cy: float32, color: tc_Color) <cimport, nodecl> end
+global function tico_canvas_draw_auto(canvas: tc_Canvas) <cimport, nodecl> end
+global function tico_shader_create(vertShader: cint, fragShader: cint): tc_Shader <cimport, nodecl> end
+global function tico_shader_create_from_string(vertSource: cstring, fragSource: cstring): tc_Shader <cimport, nodecl> end
+global function tico_shader_create_from_ustring(source: cstring): tc_Shader <cimport, nodecl> end
+global function tico_shader_create_from_file(filename: cstring): tc_Shader <cimport, nodecl> end
+global function tico_shader_load_default(vertexShader: *cint, fragShader: *cint): tc_Shader <cimport, nodecl> end
+global function tico_shader_create_effect(vertEffect: cstring, fragEffect: cstring): tc_Shader <cimport, nodecl> end
+global function tico_shader_destroy(shader: *tc_Shader) <cimport, nodecl> end
+global function tico_shader_compile(source: cstring, shaderType: cint): cint <cimport, nodecl> end
+global function tico_shader_load_program(vertexShader: cint, fragShader: cint): cint <cimport, nodecl> end
+global function tico_shader_send_world(shader: tc_Shader) <cimport, nodecl> end
+global function tico_shader_send(shader: tc_Shader, name: cstring, data: pointer, type: TIC_SHADER_UNIFORM_) <cimport, nodecl> end
+global function tico_shader_send_count(shader: tc_Shader, name: cstring, count: cint, data: pointer, type: TIC_SHADER_UNIFORM_) <cimport, nodecl> end
+global function tico_shader_attach(shader: tc_Shader) <cimport, nodecl> end
+global function tico_shader_detach() <cimport, nodecl> end
+global function tico_font_load_default(): tc_Font <cimport, nodecl> end
+global function tico_font_init(font: *tc_Font, data: pointer, bufSize: csize, fontSize: cint) <cimport, nodecl> end
+global function tico_font_load(filename: cstring, size: cint): tc_Font <cimport, nodecl> end
+global function tico_font_load_from_memory(data: pointer, bufSize: csize, fontSize: cint): tc_Font <cimport, nodecl> end
+global function tico_font_load_from_texture(texture: tc_Texture, fontWidth: cint, fontHeight: cint): tc_Font <cimport, nodecl> end
+global function tico_font_destroy(font: *tc_Font) <cimport, nodecl> end
+global function tico_font_get_rect(font: tc_Font, c: cint, x: *float32, y: *float32, outPos: *tc_Vec2, rect: *tc_Rectf, width: cint) <cimport, nodecl> end
+global function tico_font_get_rect_scale(font: tc_Font, c: cint, x: *float32, y: *float32, outPos: *tc_Vec2, rect: *tc_Rectf, sx: float32, sy: float32, width: cint) <cimport, nodecl> end
+global function tico_font_get_text_width(font: tc_Font, text: cstring, len: cint): cint <cimport, nodecl> end
+global function tico_font_get_text_height(font: tc_Font, text: cstring, len: cint): cint <cimport, nodecl> end
+global TIC_WindowFlags_: type <cimport, nodecl, using> = @enum(cint){
+  TIC_WindowFlags_Default = 0,
+  TIC_WindowFlags_FullScreen = 1,
+  TIC_WindowFlags_Resizable = 2,
+  TIC_WindowFlags_VSync = 4
+}
+global TIC_CURSOR_ARROW: cint <comptime> = 0
+global TIC_CURSOR_TEXT: cint <comptime> = 1
+global TIC_CURSOR_CROSSHAIR: cint <comptime> = 2
+global TIC_CURSOR_HAND: cint <comptime> = 3
+global TIC_CURSOR_HRESIZE: cint <comptime> = 4
+global TIC_CURSOR_VRESIZE: cint <comptime> = 5
+global tc_Window: type <cimport, nodecl> = @record{
+  title: [256]cchar,
+  x: cint,
+  y: cint,
+  width: cint,
+  height: cint,
+  bkpMode: tc_Rect,
+  mouse_cursors: [6]*GLFWcursor,
+  state: record{
+    fullscreen: cint,
+    resizable: cint,
+    vsync: cint
+  },
+  handle: pointer
+}
+global function tico_window_init(window: *tc_Window, title: cstring, width: cint, height: cint, flags: TIC_WindowFlags_): cint <cimport, nodecl> end
+global function tico_window_deinit(window: *tc_Window): cint <cimport, nodecl> end
+global TIC_KEY_: type <cimport, nodecl, using> = @enum(cint){
+  KEY_UNKNOWN = -1,
+  KEY_SPACE = 32,
+  KEY_APOSTROPHE = 39,
+  KEY_COMMA = 44,
+  KEY_MINUS = 45,
+  KEY_PERIOD = 46,
+  KEY_SLASH = 47,
+  KEY_0 = 48,
+  KEY_1 = 49,
+  KEY_2 = 50,
+  KEY_3 = 51,
+  KEY_4 = 52,
+  KEY_5 = 53,
+  KEY_6 = 54,
+  KEY_7 = 55,
+  KEY_8 = 56,
+  KEY_9 = 57,
+  KEY_SEMICOLON = 59,
+  KEY_EQUAL = 61,
+  KEY_A = 65,
+  KEY_B = 66,
+  KEY_C = 67,
+  KEY_D = 68,
+  KEY_E = 69,
+  KEY_F = 70,
+  KEY_G = 71,
+  KEY_H = 72,
+  KEY_I = 73,
+  KEY_J = 74,
+  KEY_K = 75,
+  KEY_L = 76,
+  KEY_M = 77,
+  KEY_N = 78,
+  KEY_O = 79,
+  KEY_P = 80,
+  KEY_Q = 81,
+  KEY_R = 82,
+  KEY_S = 83,
+  KEY_T = 84,
+  KEY_U = 85,
+  KEY_V = 86,
+  KEY_W = 87,
+  KEY_X = 88,
+  KEY_Y = 89,
+  KEY_Z = 90,
+  KEY_LEFT_BRACKET = 91,
+  KEY_BACKSLASH = 92,
+  KEY_RIGHT_BRACKET = 93,
+  KEY_GRAVE_ACCENT = 96,
+  KEY_WORLD_1 = 161,
+  KEY_WORLD_2 = 162,
+  KEY_ESCAPE = 256,
+  KEY_ENTER = 257,
+  KEY_TAB = 258,
+  KEY_BACKSPACE = 259,
+  KEY_INSERT = 260,
+  KEY_DELETE = 261,
+  KEY_RIGHT = 262,
+  KEY_LEFT = 263,
+  KEY_DOWN = 264,
+  KEY_UP = 265,
+  KEY_PAGE_UP = 266,
+  KEY_PAGE_DOWN = 267,
+  KEY_HOME = 268,
+  KEY_END = 269,
+  KEY_CAPS_LOCK = 280,
+  KEY_SCROLL_LOCK = 281,
+  KEY_NUM_LOCK = 282,
+  KEY_PRINT_SCREEN = 283,
+  KEY_PAUSE = 284,
+  KEY_F1 = 290,
+  KEY_F2 = 291,
+  KEY_F3 = 292,
+  KEY_F4 = 293,
+  KEY_F5 = 294,
+  KEY_F6 = 295,
+  KEY_F7 = 296,
+  KEY_F8 = 297,
+  KEY_F9 = 298,
+  KEY_F10 = 299,
+  KEY_F11 = 300,
+  KEY_F12 = 301,
+  KEY_F13 = 302,
+  KEY_F14 = 303,
+  KEY_F15 = 304,
+  KEY_F16 = 305,
+  KEY_F17 = 306,
+  KEY_F18 = 307,
+  KEY_F19 = 308,
+  KEY_F20 = 309,
+  KEY_F21 = 310,
+  KEY_F22 = 311,
+  KEY_F23 = 312,
+  KEY_F24 = 313,
+  KEY_F25 = 314,
+  KEY_KP_0 = 320,
+  KEY_KP_1 = 321,
+  KEY_KP_2 = 322,
+  KEY_KP_3 = 323,
+  KEY_KP_4 = 324,
+  KEY_KP_5 = 325,
+  KEY_KP_6 = 326,
+  KEY_KP_7 = 327,
+  KEY_KP_8 = 328,
+  KEY_KP_9 = 329,
+  KEY_KP_DECIMAL = 330,
+  KEY_KP_DIVIDE = 331,
+  KEY_KP_MULTIPLY = 332,
+  KEY_KP_SUBTRACT = 333,
+  KEY_KP_ADD = 334,
+  KEY_KP_ENTER = 335,
+  KEY_KP_EQUAL = 336,
+  KEY_LEFT_SHIFT = 340,
+  KEY_LEFT_CONTROL = 341,
+  KEY_LEFT_ALT = 342,
+  KEY_LEFT_SUPER = 343,
+  KEY_RIGHT_SHIFT = 344,
+  KEY_RIGHT_CONTROL = 345,
+  KEY_RIGHT_ALT = 346,
+  KEY_RIGHT_SUPER = 347,
+  KEY_MENU = 348,
+  KEY_LAST = 348,
+  KEY_COUNT = 349
+}
+global TIC_MOUSEBUTTON_: type <cimport, nodecl, using> = @enum(cint){
+  MOUSE_LEFT = 0,
+  MOUSE_RIGHT = 1,
+  MOUSE_MIDDLE = 2,
+  MOUSE_BUTTON_LAST = 3,
+  MOUSE_BUTTON_COUNT = 4
+}
+global TIC_JOYSTICKS_: type <cimport, nodecl, using> = @enum(cint){
+  TIC_JOY_1 = 0,
+  TIC_JOY_2 = 1,
+  TIC_JOY_3 = 2,
+  TIC_JOY_4 = 3,
+  TIC_JOY_5 = 4,
+  TIC_JOY_6 = 5,
+  TIC_JOY_7 = 6,
+  TIC_JOY_8 = 7,
+  TIC_JOY_9 = 8,
+  TIC_JOY_10 = 9,
+  TIC_JOY_11 = 10,
+  TIC_JOY_12 = 11,
+  TIC_JOY_13 = 12,
+  TIC_JOY_14 = 13,
+  TIC_JOY_15 = 14,
+  TIC_JOY_16 = 15,
+  TIC_JOY_COUNT = 16,
+  TIC_JOY_LAST = 15
+}
+global TIC_JOYSTICK_BUTTON_: type <cimport, nodecl, using> = @enum(cint){
+  JOY_BUTTON_A = 0,
+  JOY_BUTTON_B = 1,
+  JOY_BUTTON_X = 2,
+  JOY_BUTTON_Y = 3,
+  JOY_BUTTON_LEFT_BUMPER = 4,
+  JOY_BUTTON_RIGHT_BUMPER = 5,
+  JOY_BUTTON_BACK = 6,
+  JOY_BUTTON_START = 7,
+  JOY_BUTTON_GUIDE = 8,
+  JOY_BUTTON_LEFT_THUMB = 9,
+  JOY_BUTTON_RIGHT_THUMB = 10,
+  JOY_BUTTON_DPAD_UP = 11,
+  JOY_BUTTON_DPAD_RIGHT = 12,
+  JOY_BUTTON_DPAD_DOWN = 13,
+  JOY_BUTTON_DPAD_LEFT = 14,
+  JOY_BUTTON_COUNT = 15,
+  JOY_BUTTON_LAST = 14
+}
+global TIC_JOYSTICK_AXES_: type <cimport, nodecl, using> = @enum(cint){
+  JOY_AXIS_LEFT_X = 0,
+  JOY_AXIS_LEFT_Y = 1,
+  JOY_AXIS_RIGHT_X = 2,
+  JOY_AXIS_RIGHT_Y = 3,
+  JOY_AXIS_LEFT_TRIGGER = 4,
+  JOY_AXIS_RIGHT_TRIGGER = 5,
+  JOY_AXIS_COUNT = 6,
+  JOY_AXIS_LAST = 5
+}
+global TIC_INPUT_FLAGS_: type <cimport, nodecl, using> = @enum(cint){
+  TIC_INPUT_INIT_ALL = 0,
+  TIC_INIT_KEYBOARD = 1,
+  TIC_INIT_MOUSE = 4,
+  TIC_INIT_JOYSTICK = 8
+}
+global tc_Input: type <cimport, nodecl> = @record{
+  names: record{
+    mouseButtonNames: map_int_t,
+    keyNames: map_int_t,
+    joyButtonNames: map_int_t,
+    joyAxisNames: map_int_t
+  },
+  mouseState: record{
+    x: cint,
+    y: cint,
+    fixX: cint,
+    fixY: cint,
+    scrollX: float32,
+    scrollY: float32,
+    scroll: tc_Vec2,
+    scroll_delta: tc_Vec2,
+    pos: tc_Vec2,
+    pos_delta: tc_Vec2,
+    down: [3]cint,
+    pressed: [3]cint,
+    fixed: cint,
+    active: cint
+  },
+  keyState: record{
+    down: [348]cint,
+    pressed: [348]cint,
+    active: cint
+  },
+  joystickState: [16]record{
+    down: [15]cint,
+    pressed: [15]cint,
+    axis: [6]float32,
+    active: cint
+  }
+}
+global function tico_input_init(input: *tc_Input, flags: TIC_INPUT_FLAGS_): cint <cimport, nodecl> end
+global function tico_input_terminate(input: *tc_Input) <cimport, nodecl> end
+global function tico_input_update(input: *tc_Input): cint <cimport, nodecl> end
+global tc_Config: type <cimport, nodecl> = @record{
+  title: [256]cchar,
+  width: cint,
+  height: cint,
+  flags: cint,
+  window_flags: TIC_WindowFlags_,
+  argc: cint,
+  argv: *cstring,
+  plugins: vec_str_t
+}
+global tc_Core: type <cimport, nodecl> = @record{
+  timer: tc_Timer,
+  graphics: tc_Graphics,
+  window: tc_Window,
+  input: tc_Input,
+  fs: tc_Filesystem,
+  plugins: tc_PluginModule
+}
+global function tico_config_load(path: cstring, argc: cint, argv: *cstring): tc_Config <cimport, nodecl> end
+global function tico_config_init(title: cstring, width: cint, height: cint, argc: cint, argv: *cstring): tc_Config <cimport, nodecl> end
+global function tico_init(config: *tc_Config): cint <cimport, nodecl> end
+global function tico_terminate() <cimport, nodecl> end
+global function tico_poll_events() <cimport, nodecl> end
+global function tico_update(): cint <cimport, nodecl> end
+global function tico_begin_draw(): cint <cimport, nodecl> end
+global function tico_end_draw(): cint <cimport, nodecl> end
+global function tico_main_loop(): cint <cimport, nodecl> end
+global function tico_plugins_default() <cimport, nodecl> end
+global function tico_plugins_enable(name: cstring) <cimport, nodecl> end
+global function tico_plugins_disable(name: cstring) <cimport, nodecl> end
+global function tico_plugins_is_active(name: cstring): cint <cimport, nodecl> end
+global function tico_plugins_get(name: cstring): *tc_Plugin <cimport, nodecl> end
+global function tico_plugins_init() <cimport, nodecl> end
+global function tico_plugins_update() <cimport, nodecl> end
+global function tico_plugins_begin_draw() <cimport, nodecl> end
+global function tico_plugins_draw() <cimport, nodecl> end
+global function tico_plugins_end_draw() <cimport, nodecl> end
+global function tico_plugins_terminate() <cimport, nodecl> end
+global function tico_timer_update() <cimport, nodecl> end
+global function tico_timer_get_time(): float32 <cimport, nodecl> end
+global function tico_timer_get_delta(): float32 <cimport, nodecl> end
+global function tico_timer_get_fps(): cint <cimport, nodecl> end
+global function tico_timer_wait(ms: float32) <cimport, nodecl> end
+global function tico_filesystem_set_packed(packed: cint) <cimport, nodecl> end
+global function tico_filesystem_is_packed(): cint <cimport, nodecl> end
+global function tico_filesystem_set_path(path: cstring) <cimport, nodecl> end
+global function tico_filesystem_get_path(): *cuchar <cimport, nodecl> end
+global function tico_filesystem_resolve_path(outName: cstring, filename: cstring) <cimport, nodecl> end
+global function tico_filesystem_get_exe_path(): *cuchar <cimport, nodecl> end
+global function tico_filesystem_read_internal_file(filename: cstring, outSize: *csize): *cuchar <cimport, nodecl> end
+global function tico_filesystem_read_external_file(filename: cstring, outSize: *csize): *cuchar <cimport, nodecl> end
+global function tico_filesystem_write_internal_file(filename: cstring, text: cstring, size: csize, mode: TIC_WRITE_MODE_) <cimport, nodecl> end
+global function tico_filesystem_write_external_file(filename: cstring, text: cstring, size: csize, mode: TIC_WRITE_MODE_) <cimport, nodecl> end
+global function tico_filesystem_internal_file_exists(filename: cstring): cint <cimport, nodecl> end
+global function tico_filesystem_external_file_exists(filename: cstring): cint <cimport, nodecl> end
+global function tico_filesystem_read_file(filename: cstring, outSize: *csize): *cuchar <cimport, nodecl> end
+global function tico_filesystem_write_file(filename: cstring, text: cstring, size: csize, mode: TIC_WRITE_MODE_) <cimport, nodecl> end
+global function tico_filesystem_delete_file(filename: cstring) <cimport, nodecl> end
+global function tico_filesystem_file_exists(filename: cstring): cint <cimport, nodecl> end
+global function tico_filesystem_mkdir(path: cstring) <cimport, nodecl> end
+global function tico_filesystem_rmdir(path: cstring) <cimport, nodecl> end
+global function tico_graphics_draw(texture: tc_Texture, dest: tc_Rectf, source: tc_Rectf, color: tc_Color) <cimport, nodecl> end
+global function tico_graphics_draw_ex(texture: tc_Texture, dest: tc_Rectf, source: tc_Rectf, angle: float32, origin: tc_Vec2, color: tc_Color) <cimport, nodecl> end
+global function tico_graphics_clear(color: tc_Color) <cimport, nodecl> end
+global function tico_graphics_push() <cimport, nodecl> end
+global function tico_graphics_pop() <cimport, nodecl> end
+global function tico_graphics_origin() <cimport, nodecl> end
+global function tico_graphics_translate(x: float32, y: float32) <cimport, nodecl> end
+global function tico_graphics_rotate(angle: float32) <cimport, nodecl> end
+global function tico_graphics_scale(x: float32, y: float32) <cimport, nodecl> end
+global function tico_graphics_scissor(x: cint, y: cint, w: cint, h: cint) <cimport, nodecl> end
+global function tico_graphics_send(name: cstring, data: pointer, type: TIC_SHADER_UNIFORM_) <cimport, nodecl> end
+global function tico_graphics_send_count(name: cstring, count: cint, data: pointer, type: TIC_SHADER_UNIFORM_) <cimport, nodecl> end
+global function tico_graphics_default_vertex_shader(): cint <cimport, nodecl> end
+global function tico_graphics_default_fragment_shader(): cint <cimport, nodecl> end
+global function tico_graphics_default_shader(): tc_Shader <cimport, nodecl> end
+global function tico_graphics_push_shader(shader: tc_Shader) <cimport, nodecl> end
+global function tico_graphics_pop_shader() <cimport, nodecl> end
+global function tico_graphics_push_canvas(canvas: tc_Canvas) <cimport, nodecl> end
+global function tico_graphics_pop_canvas() <cimport, nodecl> end
+global function tico_graphics_top_canvas(): tc_Canvas <cimport, nodecl> end
+global function tico_graphics_push_matrix(matrix: tc_Matrix) <cimport, nodecl> end
+global function tico_graphics_pop_matrix() <cimport, nodecl> end
+global function tico_graphics_draw_rectangle(x: float32, y: float32, width: cint, height: cint, color: tc_Color) <cimport, nodecl> end
+global function tico_graphics_fill_rectangle(x: float32, y: float32, width: float32, height: float32, color: tc_Color) <cimport, nodecl> end
+global function tico_graphics_draw_rect(rect: tc_Rect, color: tc_Color) <cimport, nodecl> end
+global function tico_graphics_fill_rect(rect: tc_Rect, color: tc_Color) <cimport, nodecl> end
+global function tico_graphics_draw_circle(x: cint, y: cint, radius: float32, color: tc_Color) <cimport, nodecl> end
+global function tico_graphics_fill_circle(x: cint, y: cint, radius: float32, color: tc_Color) <cimport, nodecl> end
+global function tico_graphics_draw_circle_ex(x: cint, y: cint, radius: float32, sides: cint, color: tc_Color) <cimport, nodecl> end
+global function tico_graphics_fill_circle_ex(x: cint, y: cint, radius: float32, sides: cint, color: tc_Color) <cimport, nodecl> end
+global function tico_graphics_draw_triangle(x0: cint, y0: cint, x1: cint, y1: cint, x2: cint, y2: cint, color: tc_Color) <cimport, nodecl> end
+global function tico_graphics_fill_triangle(x0: cint, y0: cint, x1: cint, y1: cint, x2: cint, y2: cint, color: tc_Color) <cimport, nodecl> end
+global function tico_graphics_draw_line(x0: cint, y0: cint, x1: cint, y1: cint, color: tc_Color) <cimport, nodecl> end
+global function tico_graphics_draw_text(text: cstring, x: cint, y: cint, color: tc_Color) <cimport, nodecl> end
+global function tico_graphics_draw_text_scale(text: cstring, x: cint, y: cint, sx: float32, sy: float32, color: tc_Color) <cimport, nodecl> end
+global function tico_graphics_draw_text_ex(text: cstring, x: cint, y: cint, angle: float32, sx: float32, sy: float32, cx: cint, cy: cint, color: tc_Color) <cimport, nodecl> end
+global function tico_graphics_draw_text_font(font: tc_Font, text: cstring, x: cint, y: cint, color: tc_Color) <cimport, nodecl> end
+global function tico_graphics_draw_text_font_scale(font: tc_Font, text: cstring, x: cint, y: cint, sx: float32, sy: float32, color: tc_Color) <cimport, nodecl> end
+global function tico_graphics_draw_text_font_ex(font: tc_Font, text: cstring, x: cint, y: cint, angle: float32, sx: float32, sy: float32, cx: cint, cy: cint, color: tc_Color) <cimport, nodecl> end
+global function tico_graphics_draw_text_font_scale_width(font: tc_Font, text: cstring, x: cint, y: cint, width: cint, sx: float32, sy: float32, color: tc_Color) <cimport, nodecl> end
+global function tico_input_update_mouse_scroll(x: float32, y: float32) <cimport, nodecl> end
+global function tico_input_update_key(key: TIC_KEY_, action: cint) <cimport, nodecl> end
+global function tico_input_update_mouse_pos(x: cint, y: cint) <cimport, nodecl> end
+global function tico_input_update_joy_button(jid: TIC_JOYSTICKS_, button: TIC_JOYSTICK_BUTTON_, action: cint) <cimport, nodecl> end
+global function tico_input_update_mouse_button(button: TIC_MOUSEBUTTON_, action: cint) <cimport, nodecl> end
+global function tico_input_get_key_code(name: cstring): cint <cimport, nodecl> end
+global function tico_input_get_joy_btncode(name: cstring): cint <cimport, nodecl> end
+global function tico_input_get_joy_axiscode(name: cstring): cint <cimport, nodecl> end
+global function tico_input_get_mouse_code(name: cstring): cint <cimport, nodecl> end
+global function tico_input_key_down(key: TIC_KEY_): cint <cimport, nodecl> end
+global function tico_input_key_pressed(key: TIC_KEY_): cint <cimport, nodecl> end
+global function tico_input_key_up(key: TIC_KEY_): cint <cimport, nodecl> end
+global function tico_input_key_released(key: TIC_KEY_): cint <cimport, nodecl> end
+global function tico_input_mouse_down(button: TIC_MOUSEBUTTON_): cint <cimport, nodecl> end
+global function tico_input_mouse_pressed(button: TIC_MOUSEBUTTON_): cint <cimport, nodecl> end
+global function tico_input_mouse_up(button: TIC_MOUSEBUTTON_): cint <cimport, nodecl> end
+global function tico_input_mouse_released(button: TIC_MOUSEBUTTON_): cint <cimport, nodecl> end
+global function tico_input_mouse_set_cursor(cursor: cint) <cimport, nodecl> end
+global function tico_input_joy_down(jid: TIC_JOYSTICKS_, button: TIC_JOYSTICK_BUTTON_): cint <cimport, nodecl> end
+global function tico_input_joy_up(jid: TIC_JOYSTICKS_, button: TIC_JOYSTICK_BUTTON_): cint <cimport, nodecl> end
+global function tico_input_joy_pressed(jid: TIC_JOYSTICKS_, button: TIC_JOYSTICK_BUTTON_): cint <cimport, nodecl> end
+global function tico_input_joy_released(jid: TIC_JOYSTICKS_, button: TIC_JOYSTICK_BUTTON_): cint <cimport, nodecl> end
+global function tico_input_get_mouse_pos(x: *cint, y: *cint) <cimport, nodecl> end
+global function tico_input_fix_mouse() <cimport, nodecl> end
+global function tico_input_release_mouse() <cimport, nodecl> end
+global function tico_input_get_mouse_delta(x: *cint, y: *cint) <cimport, nodecl> end
+global function tico_input_get_mouse_scroll(x: *float32, y: *float32) <cimport, nodecl> end
+global function tico_input_get_mouse_scroll_delta(x: *float32, y: *float32) <cimport, nodecl> end
+global function tico_window_should_close(): cint <cimport, nodecl> end
+global function tico_window_swap_buffers() <cimport, nodecl> end
+global function tico_window_get_pos(x: *cint, y: *cint) <cimport, nodecl> end
+global function tico_window_set_pos(x: cint, y: cint) <cimport, nodecl> end
+global function tico_window_get_width(): cint <cimport, nodecl> end
+global function tico_window_set_width(width: cint) <cimport, nodecl> end
+global function tico_window_get_height(): cint <cimport, nodecl> end
+global function tico_window_set_height(height: cint) <cimport, nodecl> end
+global function tico_window_get_size(width: *cint, height: *cint) <cimport, nodecl> end
+global function tico_window_set_size(width: cint, height: cint) <cimport, nodecl> end
+global function tico_window_get_title(): cstring <cimport, nodecl> end
+global function tico_window_set_title(title: cstring) <cimport, nodecl> end
+global function tico_window_is_fullscreen(): cint <cimport, nodecl> end
+global function tico_window_set_fullscreen(fullscreen: cint) <cimport, nodecl> end
+global function tico_window_toggle_fullscreen() <cimport, nodecl> end
+global function tico_window_is_resizable(): cint <cimport, nodecl> end
+global function tico_window_set_resizable(resizable: cint) <cimport, nodecl> end
+global function tico_window_toggle_resizable() <cimport, nodecl> end
+global function tico_window_get_vsync(): cint <cimport, nodecl> end
+global function tico_window_set_vsync(vsync: cint) <cimport, nodecl> end
+global function tico_plugin_add_plugin(name: cstring, plugin: tc_Plugin) <cimport, nodecl> end
+global function tico_plugin_enable_plugin(name: cstring) <cimport, nodecl> end
+global function tico_plugin_disable_plugin(name: cstring) <cimport, nodecl> end
+global function tico_plugin_is_active(name: cstring): cint <cimport, nodecl> end
+global function tico_plugin_get(name: cstring): *tc_Plugin <cimport, nodecl> end
+global function tico_plugin_module_init(): cint <cimport, nodecl> end
+global function tico_plugin_module_terminate() <cimport, nodecl> end
+global function tico_plugin_module_update() <cimport, nodecl> end
+global function tico_plugin_module_begin_draw() <cimport, nodecl> end
+global function tico_plugin_module_draw() <cimport, nodecl> end
+global function tico_plugin_module_end_draw() <cimport, nodecl> end
+global function tico_imgui_init(window: *tc_Window): cint <cimport, nodecl> end
+global function tico_imgui_update(): cint <cimport, nodecl> end
+global function tico_imgui_render(): cint <cimport, nodecl> end
+global function tico_imgui_terminate() <cimport, nodecl> end
+global function tico_imgui_Begin(name: cstring, open: *cint, flags: ImGuiWindowFlags_): cint <cimport, nodecl> end
+global function tico_imgui_End() <cimport, nodecl> end
+global function tico_window_move_callback(window: *GLFWwindow, x: cint, y: cint) <cimport, nodecl> end
+global function tico_framebuffer_size_callback(window: *GLFWwindow, width: cint, height: cint) <cimport, nodecl> end
+global function tico_window_key_callback(window: *GLFWwindow, key: cint, scancode: cint, action: cint, mods: cint) <cimport, nodecl> end
+global function tico_mouse_button_callback(window: *GLFWwindow, button: cint, action: cint, mods: cint) <cimport, nodecl> end
+global function tico_mouse_pos_callback(window: *GLFWwindow, posX: float64, posY: float64) <cimport, nodecl> end
+global function tico_window_focus_callback(window: *GLFWwindow, focused: cint) <cimport, nodecl> end
+global function tico_joystick_callback(jid: cint, event: cint) <cimport, nodecl> end
+global function tico_mouse_scroll_callback(window: *GLFWwindow, xoffset: float64, yoffset: float64) <cimport, nodecl> end
+global tico.Tileset: type = @tc_Tileset
+global tico.Tilemap: type = @tc_Tilemap
+global tico.Camera: type = @tc_Camera
+global tico.Animation: type = @tc_Animation
+global tico.Sprite: type = @tc_Sprite
+global tico.Timer: type = @tc_Timer
+global tico.Plugin: type = @tc_Plugin
+global tico.PluginModule: type = @tc_PluginModule
+global tico.Lua: type = @tc_Lua
+global tico.ResourceDep: type = @tc_ResourceDep
+global tico.Resource: type = @tc_Resource
+global tico.ResourcePlugin: type = @tc_ResourcePlugin
+global tico.ResourceManager: type = @tc_ResourceManager
+global tico.PanelWidget: type = @tc_PanelWidget
+global tico.GridWidget: type = @tc_GridWidget
+global tico.Object: type = @tc_Object
+global tico.ObjectWidget: type = @tc_ObjectWidget
+global tico.GridTool: type = @tc_GridTool
+global tico.EditorFolder: type = @tc_EditorFolder
+global tico.EditorPlugin: type = @tc_EditorPlugin
+global tico.EditorWindow: type = @tc_EditorWindow
+global tico.Editor: type = @tc_Editor
+global tico.AudioData: type = @tc_AudioData
+global tico.AudioBuffer: type = @tc_AudioBuffer
+global tico.Sound: type = @tc_Sound
+global tico.Vertex: type = @tc_Vertex
+global tico.DrawCall: type = @tc_DrawCall
+global tico.Batch: type = @tc_Batch
+global tico.Render: type = @tc_Render
+global tico.Graphics: type = @tc_Graphics
+global tico.Window: type = @tc_Window
+global tico.Input: type = @tc_Input
+global tico.Config: type = @tc_Config
+global tico.Core: type = @tc_Core
+global tico.Rect: type = @tc_Rect
+global tico.Rectf: type = @tc_Rectf
+global tico.Circle: type = @tc_Circle
+global tico.Circlef: type = @tc_Circlef
+global tico.Color: type = @tc_Color
+global tico.Texture: type = @tc_Texture
+global tico.Image: type = @tc_Image
+global tico.Canvas: type = @tc_Canvas
+global tico.Shader: type = @tc_Shader
+global tico.CharacterInfo: type = @tc_CharacterInfo
+global tico.Font: type = @tc_Font
+global tico.Vec2: type = @tc_Vec2
+global tico.Vec3: type = @tc_Vec3
+global tico.Vec4: type = @tc_Vec4
+global tico.Matrix: type = @tc_Matrix
+global tico.Filesystem: type = @tc_Filesystem
+global tico.MetaFn: type = @tc_MetaFn
+global tico.FieldFn: type = @tc_FieldFn
+global tico.FieldType: type = @tc_FieldType
+global tico.Serialization: type = @tc_Serialization
+global tico.Field: type = @tc_Field
+global tico.Meta: type = @tc_Meta
+
+global tico.WHITE: tc_Color = { 255, 255, 255, 255 }
+global tico.BLACK: tc_Color = {   0,   0,   0, 255 }
+global tico.BLUE : tc_Color = {  48,  52, 109, 255 }
+global tico.RED  : tc_Color = { 208,  70,  72, 255 }
+global tico.GREEN: tc_Color = {  52, 101,  36, 255 }
+global tico.GRAY : tc_Color = {  78,  74,  78, 255 }
+global tico.BROWN: tc_Color = { 133,  76,  48, 255 }
+global tico.BG   : tc_Color = {  75,  90,  90, 255 }
