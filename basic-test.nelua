@@ -13,41 +13,20 @@ require 'output.tico'
 local nelua_argc: cint <cimport, nodecl>
 local nelua_argv: *[0]cstring <cimport, nodecl>
 
-local Rectf = tico.Rectf
 local Config = tico.Config
-local Color = tico.Color
-local Texture = tico.Texture
-local Rectf = tico.Rectf
 
-local config: Config = tico.config_init("title", 640, 380, nelua_argc, nelua_argv)
-local success: cint = tico.init(config)
-
--- local my_tex: Texture <const> = tico.texture_load'resources/lunarlander_sprites.png'
-local dest: Rectf = {32,0,16,16}
-local source: Rectf = {0,0,16,16}
-
-local a, n = 0, 0
+local config: Config = tico.config_init("basic test", 640, 380, nelua_argc, nelua_argv)
+tico.init(config)
 
 while not tico.window_should_close() do -- main loop
   tico.update() -- update inputs, timers, ...
-
-  --tic_log(0, "TESTE LOG %d", a)
-  a = a + 1
 
   tico.graphics_clear(tico.WHITE) -- clear screen with color
 
   -- [[ begin batch render [[
   tico.begin_draw()
   do
-    tico.graphics_draw_text("testando", 20, 20, tico.WHITE)
-
-    if a % 16 == 0 then
-      n = (n+1) % 2
-      source.x = 16 * n
-    end
-
-    --tico.graphics_draw(my_tex, dest, source, tico.WHITE)
-    local x = tico.lerp(2.0, 4.0, 0.5)
+    tico.graphics_draw_text("my test text", 20, 20, tico.WHITE)
   end
   tico.end_draw()
   -- ]] finish batch render ]]
