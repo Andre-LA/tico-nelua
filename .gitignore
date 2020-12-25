@@ -1,4 +1,5 @@
-/tinycoffee/
-/libs/
+tinycoffee
+nelua-decl
+nelua_cache
 
 *.c
