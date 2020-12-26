@@ -2,4 +2,4 @@ tinycoffee
 nelua-decl
 nelua_cache
 
-*.c
+*.s
