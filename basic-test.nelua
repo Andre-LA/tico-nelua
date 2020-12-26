@@ -24,13 +24,17 @@ tico.init(config)
 
 while not tico.window_should_close() do -- main loop
   tico.update() -- update inputs, timers, ...
-
   tico.graphics_clear(tico.WHITE) -- clear screen with color
+
 
   -- [[ begin batch render [[
   tico.begin_draw()
   do
     tico.graphics_draw_text("my test text", 20, 20, tico.WHITE)
+
+    if tico.input_key_down(tico.KEY.KEY_SPACE) then
+      tico.graphics_draw_text("SPACE is down!", 20, 60, tico.WHITE)
+    end
   end
   tico.end_draw()
   -- ]] finish batch render ]]

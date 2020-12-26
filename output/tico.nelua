@@ -104,16 +104,16 @@ local tc_Color: type <cimport, nodecl> = @record{
   b: cuchar,
   a: cuchar
 }
-global TIC_SHADER_UNIFORM_: type <cimport, nodecl, using> = @enum(cint){
-  TIC_UNIFORM_INT = 0,
-  TIC_UNIFORM_VEC2I = 1,
-  TIC_UNIFORM_VEC3I = 2,
-  TIC_UNIFORM_VEC4I = 3,
-  TIC_UNIFORM_FLOAT = 4,
-  TIC_UNIFORM_VEC2 = 5,
-  TIC_UNIFORM_VEC3 = 6,
-  TIC_UNIFORM_VEC4 = 7,
-  TIC_UNIFORM_MATRIX = 8
+local TIC_SHADER_UNIFORM_: type <cimport, nodecl, using> = @enum(cint){
+  UNIFORM_INT = 0,
+  UNIFORM_VEC2I = 1,
+  UNIFORM_VEC3I = 2,
+  UNIFORM_VEC4I = 3,
+  UNIFORM_FLOAT = 4,
+  UNIFORM_VEC2 = 5,
+  UNIFORM_VEC3 = 6,
+  UNIFORM_VEC4 = 7,
+  UNIFORM_MATRIX = 8
 }
 local tc_Texture: type <cimport, nodecl> = @record{
   id: cuint,
@@ -196,7 +196,7 @@ function tico.vec2_mul(v: *tc_Vec2, a: tc_Vec2, number: float32) <cimport'tico_v
 function tico.vec2_div(v: *tc_Vec2, a: tc_Vec2, number: float32) <cimport'tico_vec2_div', nodecl> end
 function tico.vec2_dot(a: tc_Vec2, b: tc_Vec2): float32 <cimport'tico_vec2_dot', nodecl> end
 function tico.vec2_print(v: tc_Vec2) <cimport'tico_vec2_print', nodecl> end
-function tico.vec2_equals(a: tc_Vec2, b: tc_Vec2): cint <cimport'tico_vec2_equals', nodecl> end
+function tico.vec2_equals(a: tc_Vec2, b: tc_Vec2): boolean <cimport'tico_vec2_equals', nodecl> end
 function tico.vec2_len(v: tc_Vec2): float32 <cimport'tico_vec2_len', nodecl> end
 function tico.vec2_normalize(v: *tc_Vec2, u: tc_Vec2) <cimport'tico_vec2_normalize', nodecl> end
 function tico.vec2_distance(a: tc_Vec2, b: tc_Vec2): float32 <cimport'tico_vec2_distance', nodecl> end
@@ -213,7 +213,7 @@ function tico.vec3_mul(v: *tc_Vec3, a: tc_Vec3, number: float32) <cimport'tico_v
 function tico.vec3_div(v: *tc_Vec3, a: tc_Vec3, number: float32) <cimport'tico_vec3_div', nodecl> end
 function tico.vec3_dot(a: tc_Vec3, b: tc_Vec3): float32 <cimport'tico_vec3_dot', nodecl> end
 function tico.vec3_print(v: tc_Vec3) <cimport'tico_vec3_print', nodecl> end
-function tico.vec3_equals(a: tc_Vec3, b: tc_Vec3): cint <cimport'tico_vec3_equals', nodecl> end
+function tico.vec3_equals(a: tc_Vec3, b: tc_Vec3): boolean <cimport'tico_vec3_equals', nodecl> end
 function tico.vec3_len(v: tc_Vec3): float32 <cimport'tico_vec3_len', nodecl> end
 function tico.vec3_normalize(v: *tc_Vec3, u: tc_Vec3) <cimport'tico_vec3_normalize', nodecl> end
 function tico.vec3_distance(a: tc_Vec3, b: tc_Vec3): float32 <cimport'tico_vec3_distance', nodecl> end
@@ -228,7 +228,7 @@ function tico.vec4_mul(v: *tc_Vec4, a: tc_Vec4, number: float32) <cimport'tico_v
 function tico.vec4_div(v: *tc_Vec4, a: tc_Vec4, number: float32) <cimport'tico_vec4_div', nodecl> end
 function tico.vec4_dot(a: tc_Vec4, b: tc_Vec4): float32 <cimport'tico_vec4_dot', nodecl> end
 function tico.vec4_print(v: tc_Vec4) <cimport'tico_vec4_print', nodecl> end
-function tico.vec4_equals(a: tc_Vec4, b: tc_Vec4): cint <cimport'tico_vec4_equals', nodecl> end
+function tico.vec4_equals(a: tc_Vec4, b: tc_Vec4): boolean <cimport'tico_vec4_equals', nodecl> end
 function tico.vec4_len(v: tc_Vec4): float32 <cimport'tico_vec4_len', nodecl> end
 function tico.vec4_normalize(v: *tc_Vec4, u: tc_Vec4) <cimport'tico_vec4_normalize', nodecl> end
 function tico.vec4_distance(a: tc_Vec4, b: tc_Vec4): float32 <cimport'tico_vec4_distance', nodecl> end
@@ -239,7 +239,7 @@ function tico.vec4_cross(r: *tc_Vec4, a: tc_Vec4, b: tc_Vec4) <cimport'tico_vec4
 function tico.vec4_reflect(r: *tc_Vec4, v: tc_Vec4, n: tc_Vec4) <cimport'tico_vec4_reflect', nodecl> end
 function tico.matrix_identity(m: *tc_Matrix) <cimport'tico_matrix_identity', nodecl> end
 function tico.matrix_clone(m: *tc_Matrix, s: tc_Matrix) <cimport'tico_matrix_clone', nodecl> end
-function tico.matrix_equals(a: tc_Matrix, b: tc_Matrix): cint <cimport'tico_matrix_equals', nodecl> end
+function tico.matrix_equals(a: tc_Matrix, b: tc_Matrix): boolean <cimport'tico_matrix_equals', nodecl> end
 function tico.matrix_print(m: tc_Matrix) <cimport'tico_matrix_print', nodecl> end
 function tico.matrix_row(v: *tc_Vec4, m: tc_Matrix, row: cint) <cimport'tico_matrix_row', nodecl> end
 function tico.matrix_transpose(m: *tc_Matrix, n: tc_Matrix) <cimport'tico_matrix_transpose', nodecl> end
@@ -268,15 +268,15 @@ function tico.round(n: float32): float32 <cimport'tico_round', nodecl> end
 function tico.distance(a: float32, b: float32): float32 <cimport'tico_distance', nodecl> end
 function tico.sign(a: float32): cint <cimport'tico_sign', nodecl> end
 function tico.angle(x0: float32, y0: float32, x1: float32, y1: float32): float32 <cimport'tico_angle', nodecl> end
-global TIC_FILE_TYPE_: type <cimport, nodecl, using> = @enum(cint){
-  TIC_FILE = 0,
-  TIC_DIRECTORY = 1,
-  TIC_SYMLINK = 2
+local TIC_FILE_TYPE_: type <cimport, nodecl, using> = @enum(cint){
+  FILE = 0,
+  DIRECTORY = 1,
+  SYMLINK = 2
 }
-global TIC_WRITE_MODE_: type <cimport, nodecl, using> = @enum(cint){
-  TIC_WRITE = 0,
-  TIC_APPEND = 1,
-  TIC_BINARY = 2
+local TIC_WRITE_MODE_: type <cimport, nodecl, using> = @enum(cint){
+  WRITE = 0,
+  APPEND = 1,
+  BINARY = 2
 }
 local tc_Filesystem: type <cimport, nodecl, forwarddecl> = @record{}
 local tc_Filesystem: type <cimport, nodecl> = @record{
@@ -374,19 +374,19 @@ function tico.json_to_circle(json: *cJSON): tc_Circlef <cimport'tico_json_to_cir
 function tico.json_get_array_size(json: *cJSON): cint <cimport'tico_json_get_array_size', nodecl> end
 local tc_Field: type <cimport, nodecl, forwarddecl> = @record{}
 local tc_Meta: type <cimport, nodecl, forwarddecl> = @record{}
-global TIC_FIELD_TYPE_: type <cimport, nodecl, using> = @enum(cint){
-  TIC_FIELD_TYPE_NULL = 0,
-  TIC_FIELD_TYPE_NUMBER = 1,
-  TIC_FIELD_TYPE_STRING = 2,
-  TIC_FIELD_TYPE_BOOLEAN = 3,
-  TIC_FIELD_TYPE_VEC2 = 4,
-  TIC_FIELD_TYPE_VEC3 = 5,
-  TIC_FIELD_TYPE_VEC4 = 6,
-  TIC_FIELD_TYPE_ARRAY = 7,
-  TIC_FIELD_TYPE_OBJECT = 8,
-  TIC_FIELD_TYPE_CUSTOM = 9,
-  TIC_FIELD_TYPE_REFERENCE = 10,
-  TIC_FIELD_TYPE_MAX = 11
+local TIC_FIELD_TYPE_: type <cimport, nodecl, using> = @enum(cint){
+  FIELD_TYPE_NULL = 0,
+  FIELD_TYPE_NUMBER = 1,
+  FIELD_TYPE_STRING = 2,
+  FIELD_TYPE_BOOLEAN = 3,
+  FIELD_TYPE_VEC2 = 4,
+  FIELD_TYPE_VEC3 = 5,
+  FIELD_TYPE_VEC4 = 6,
+  FIELD_TYPE_ARRAY = 7,
+  FIELD_TYPE_OBJECT = 8,
+  FIELD_TYPE_CUSTOM = 9,
+  FIELD_TYPE_REFERENCE = 10,
+  FIELD_TYPE_MAX = 11
 }
 local tc_MetaFn: type <cimport, nodecl> = @record{
   draw: function(*tc_Field, tc_Vec2, float32): void --[[drawField]],
@@ -687,10 +687,10 @@ local tc_ResourceDep: type <cimport, nodecl> = @record{
   res_key: [256]cchar,
   res: *tc_Resource
 }
-global TIC_RESOURCE_ERROR: cint <comptime> = 1
-global TIC_RESOURCE_LOADED: cint <comptime> = 2
-global TIC_RESOURCE_MISSING_DEP: cint <comptime> = 4
-global TIC_RESOURCE_CHANGED: cint <comptime> = 8
+local TIC_RESOURCE_ERROR: cint <comptime> = 1
+local TIC_RESOURCE_LOADED: cint <comptime> = 2
+local TIC_RESOURCE_MISSING_DEP: cint <comptime> = 4
+local TIC_RESOURCE_CHANGED: cint <comptime> = 8
 local tc_Resource: type <cimport, nodecl> = @record{
   status: cint,
   changed: cint,
@@ -874,9 +874,9 @@ function tico.editor_init_window(window: *tc_EditorWindow, plugin: *tc_EditorPlu
 function tico.editor_destroy_window(window: *tc_EditorWindow) <cimport'tico_editor_destroy_window', nodecl> end
 function tico.editor_draw_window(window: *tc_EditorWindow): cint <cimport'tico_editor_draw_window', nodecl> end
 function tico.editor_draw_window_panel(window: *tc_EditorWindow) <cimport'tico_editor_draw_window_panel', nodecl> end
-global TIC_AUDIO_USAGE_: type <cimport, nodecl, using> = @enum(cint){
-  TIC_AUDIO_STREAM = 0,
-  TIC_AUDIO_STATIC = 1
+local TIC_AUDIO_USAGE_: type <cimport, nodecl, using> = @enum(cint){
+  AUDIO_STREAM = 0,
+  AUDIO_STATIC = 1
 }
 local tc_AudioData: type <cimport, nodecl> = @record{
   usage: TIC_AUDIO_USAGE_,
@@ -924,19 +924,19 @@ function tico.sound_is_playing(sound: tc_Sound): cint <cimport'tico_sound_is_pla
 function tico.sound_is_paused(sound: tc_Sound): cint <cimport'tico_sound_is_paused', nodecl> end
 function tico.sound_set_volume(sound: tc_Sound, volume: float32) <cimport'tico_sound_set_volume', nodecl> end
 function tico.audio_data_free(data: *tc_AudioData) <cimport'tico_audio_data_free', nodecl> end
-global TIC_DRAW_MODE_: type <cimport, nodecl, using> = @enum(cint){
-  TIC_TRIANGLES = 0,
-  TIC_LINES = 1
+local TIC_DRAW_MODE_: type <cimport, nodecl, using> = @enum(cint){
+  TRIANGLES = 0,
+  LINES = 1
 }
-global TIC_FRAGMENT_SHADERS_: type <cimport, nodecl, using> = @enum(cint){
-  TIC_DEFAULT_FRAGMENT = 0,
-  TIC_GBA_FRAG_SHADER = 1,
-  TIC_COLOR8_FRAG_SHADER = 2,
-  TIC_COLOR16_FRAG_SHADER = 3,
-  TIC_OUTLINE_FRAG_SHADER = 4
+local TIC_FRAGMENT_SHADERS_: type <cimport, nodecl, using> = @enum(cint){
+  DEFAULT_FRAGMENT = 0,
+  GBA_FRAG_SHADER = 1,
+  COLOR8_FRAG_SHADER = 2,
+  COLOR16_FRAG_SHADER = 3,
+  OUTLINE_FRAG_SHADER = 4
 }
-global TIC_VERTEX_SHADERS_: type <cimport, nodecl, using> = @enum(cint){
-  TIC_DEFAULT_VERTEX = 0
+local TIC_VERTEX_SHADERS_: type <cimport, nodecl, using> = @enum(cint){
+  DEFAULT_VERTEX = 0
 }
 local tc_Vertex: type <cimport, nodecl> = @record{
   pos: [2]float32,
@@ -1125,18 +1125,18 @@ function tico.font_get_rect(font: tc_Font, c: cint, x: *float32, y: *float32, ou
 function tico.font_get_rect_scale(font: tc_Font, c: cint, x: *float32, y: *float32, outPos: *tc_Vec2, rect: *tc_Rectf, sx: float32, sy: float32, width: cint) <cimport'tico_font_get_rect_scale', nodecl> end
 function tico.font_get_text_width(font: tc_Font, text: cstring, len: cint): cint <cimport'tico_font_get_text_width', nodecl> end
 function tico.font_get_text_height(font: tc_Font, text: cstring, len: cint): cint <cimport'tico_font_get_text_height', nodecl> end
-global TIC_WindowFlags_: type <cimport, nodecl, using> = @enum(cint){
-  TIC_WindowFlags_Default = 0,
-  TIC_WindowFlags_FullScreen = 1,
-  TIC_WindowFlags_Resizable = 2,
-  TIC_WindowFlags_VSync = 4
+local TIC_WindowFlags_: type <cimport, nodecl, using> = @enum(cint){
+  WindowFlags_Default = 0,
+  WindowFlags_FullScreen = 1,
+  WindowFlags_Resizable = 2,
+  WindowFlags_VSync = 4
 }
-global TIC_CURSOR_ARROW: cint <comptime> = 0
-global TIC_CURSOR_TEXT: cint <comptime> = 1
-global TIC_CURSOR_CROSSHAIR: cint <comptime> = 2
-global TIC_CURSOR_HAND: cint <comptime> = 3
-global TIC_CURSOR_HRESIZE: cint <comptime> = 4
-global TIC_CURSOR_VRESIZE: cint <comptime> = 5
+local TIC_CURSOR_ARROW: cint <comptime> = 0
+local TIC_CURSOR_TEXT: cint <comptime> = 1
+local TIC_CURSOR_CROSSHAIR: cint <comptime> = 2
+local TIC_CURSOR_HAND: cint <comptime> = 3
+local TIC_CURSOR_HRESIZE: cint <comptime> = 4
+local TIC_CURSOR_VRESIZE: cint <comptime> = 5
 local tc_Window: type <cimport, nodecl> = @record{
   title: [256]cchar,
   x: cint,
@@ -1154,7 +1154,7 @@ local tc_Window: type <cimport, nodecl> = @record{
 }
 function tico.window_init(window: *tc_Window, title: cstring, width: cint, height: cint, flags: TIC_WindowFlags_): cint <cimport'tico_window_init', nodecl> end
 function tico.window_deinit(window: *tc_Window): cint <cimport'tico_window_deinit', nodecl> end
-global TIC_KEY_: type <cimport, nodecl, using> = @enum(cint){
+local TIC_KEY_: type <cimport, nodecl, using> = @enum(cint){
   KEY_UNKNOWN = -1,
   KEY_SPACE = 32,
   KEY_APOSTROPHE = 39,
@@ -1279,34 +1279,34 @@ global TIC_KEY_: type <cimport, nodecl, using> = @enum(cint){
   KEY_LAST = 348,
   KEY_COUNT = 349
 }
-global TIC_MOUSEBUTTON_: type <cimport, nodecl, using> = @enum(cint){
+local TIC_MOUSEBUTTON_: type <cimport, nodecl, using> = @enum(cint){
   MOUSE_LEFT = 0,
   MOUSE_RIGHT = 1,
   MOUSE_MIDDLE = 2,
   MOUSE_BUTTON_LAST = 3,
   MOUSE_BUTTON_COUNT = 4
 }
-global TIC_JOYSTICKS_: type <cimport, nodecl, using> = @enum(cint){
-  TIC_JOY_1 = 0,
-  TIC_JOY_2 = 1,
-  TIC_JOY_3 = 2,
-  TIC_JOY_4 = 3,
-  TIC_JOY_5 = 4,
-  TIC_JOY_6 = 5,
-  TIC_JOY_7 = 6,
-  TIC_JOY_8 = 7,
-  TIC_JOY_9 = 8,
-  TIC_JOY_10 = 9,
-  TIC_JOY_11 = 10,
-  TIC_JOY_12 = 11,
-  TIC_JOY_13 = 12,
-  TIC_JOY_14 = 13,
-  TIC_JOY_15 = 14,
-  TIC_JOY_16 = 15,
-  TIC_JOY_COUNT = 16,
-  TIC_JOY_LAST = 15
+local TIC_JOYSTICKS_: type <cimport, nodecl, using> = @enum(cint){
+  JOY_1 = 0,
+  JOY_2 = 1,
+  JOY_3 = 2,
+  JOY_4 = 3,
+  JOY_5 = 4,
+  JOY_6 = 5,
+  JOY_7 = 6,
+  JOY_8 = 7,
+  JOY_9 = 8,
+  JOY_10 = 9,
+  JOY_11 = 10,
+  JOY_12 = 11,
+  JOY_13 = 12,
+  JOY_14 = 13,
+  JOY_15 = 14,
+  JOY_16 = 15,
+  JOY_COUNT = 16,
+  JOY_LAST = 15
 }
-global TIC_JOYSTICK_BUTTON_: type <cimport, nodecl, using> = @enum(cint){
+local TIC_JOYSTICK_BUTTON_: type <cimport, nodecl, using> = @enum(cint){
   JOY_BUTTON_A = 0,
   JOY_BUTTON_B = 1,
   JOY_BUTTON_X = 2,
@@ -1325,7 +1325,7 @@ global TIC_JOYSTICK_BUTTON_: type <cimport, nodecl, using> = @enum(cint){
   JOY_BUTTON_COUNT = 15,
   JOY_BUTTON_LAST = 14
 }
-global TIC_JOYSTICK_AXES_: type <cimport, nodecl, using> = @enum(cint){
+local TIC_JOYSTICK_AXES_: type <cimport, nodecl, using> = @enum(cint){
   JOY_AXIS_LEFT_X = 0,
   JOY_AXIS_LEFT_Y = 1,
   JOY_AXIS_RIGHT_X = 2,
@@ -1335,11 +1335,11 @@ global TIC_JOYSTICK_AXES_: type <cimport, nodecl, using> = @enum(cint){
   JOY_AXIS_COUNT = 6,
   JOY_AXIS_LAST = 5
 }
-global TIC_INPUT_FLAGS_: type <cimport, nodecl, using> = @enum(cint){
-  TIC_INPUT_INIT_ALL = 0,
-  TIC_INIT_KEYBOARD = 1,
-  TIC_INIT_MOUSE = 4,
-  TIC_INIT_JOYSTICK = 8
+local TIC_INPUT_FLAGS_: type <cimport, nodecl, using> = @enum(cint){
+  INPUT_INIT_ALL = 0,
+  INIT_KEYBOARD = 1,
+  INIT_MOUSE = 4,
+  INIT_JOYSTICK = 8
 }
 local tc_Input: type <cimport, nodecl> = @record{
   names: record{
@@ -1489,19 +1489,19 @@ function tico.input_get_key_code(name: cstring): cint <cimport'tico_input_get_ke
 function tico.input_get_joy_btncode(name: cstring): cint <cimport'tico_input_get_joy_btncode', nodecl> end
 function tico.input_get_joy_axiscode(name: cstring): cint <cimport'tico_input_get_joy_axiscode', nodecl> end
 function tico.input_get_mouse_code(name: cstring): cint <cimport'tico_input_get_mouse_code', nodecl> end
-function tico.input_key_down(key: TIC_KEY_): cint <cimport'tico_input_key_down', nodecl> end
-function tico.input_key_pressed(key: TIC_KEY_): cint <cimport'tico_input_key_pressed', nodecl> end
-function tico.input_key_up(key: TIC_KEY_): cint <cimport'tico_input_key_up', nodecl> end
-function tico.input_key_released(key: TIC_KEY_): cint <cimport'tico_input_key_released', nodecl> end
-function tico.input_mouse_down(button: TIC_MOUSEBUTTON_): cint <cimport'tico_input_mouse_down', nodecl> end
-function tico.input_mouse_pressed(button: TIC_MOUSEBUTTON_): cint <cimport'tico_input_mouse_pressed', nodecl> end
-function tico.input_mouse_up(button: TIC_MOUSEBUTTON_): cint <cimport'tico_input_mouse_up', nodecl> end
-function tico.input_mouse_released(button: TIC_MOUSEBUTTON_): cint <cimport'tico_input_mouse_released', nodecl> end
+function tico.input_key_down(key: TIC_KEY_): boolean <cimport'tico_input_key_down', nodecl> end
+function tico.input_key_pressed(key: TIC_KEY_): boolean <cimport'tico_input_key_pressed', nodecl> end
+function tico.input_key_up(key: TIC_KEY_): boolean <cimport'tico_input_key_up', nodecl> end
+function tico.input_key_released(key: TIC_KEY_): boolean <cimport'tico_input_key_released', nodecl> end
+function tico.input_mouse_down(button: TIC_MOUSEBUTTON_): boolean <cimport'tico_input_mouse_down', nodecl> end
+function tico.input_mouse_pressed(button: TIC_MOUSEBUTTON_): boolean <cimport'tico_input_mouse_pressed', nodecl> end
+function tico.input_mouse_up(button: TIC_MOUSEBUTTON_): boolean <cimport'tico_input_mouse_up', nodecl> end
+function tico.input_mouse_released(button: TIC_MOUSEBUTTON_): boolean <cimport'tico_input_mouse_released', nodecl> end
 function tico.input_mouse_set_cursor(cursor: cint) <cimport'tico_input_mouse_set_cursor', nodecl> end
-function tico.input_joy_down(jid: TIC_JOYSTICKS_, button: TIC_JOYSTICK_BUTTON_): cint <cimport'tico_input_joy_down', nodecl> end
-function tico.input_joy_up(jid: TIC_JOYSTICKS_, button: TIC_JOYSTICK_BUTTON_): cint <cimport'tico_input_joy_up', nodecl> end
-function tico.input_joy_pressed(jid: TIC_JOYSTICKS_, button: TIC_JOYSTICK_BUTTON_): cint <cimport'tico_input_joy_pressed', nodecl> end
-function tico.input_joy_released(jid: TIC_JOYSTICKS_, button: TIC_JOYSTICK_BUTTON_): cint <cimport'tico_input_joy_released', nodecl> end
+function tico.input_joy_down(jid: TIC_JOYSTICKS_, button: TIC_JOYSTICK_BUTTON_): boolean <cimport'tico_input_joy_down', nodecl> end
+function tico.input_joy_up(jid: TIC_JOYSTICKS_, button: TIC_JOYSTICK_BUTTON_): boolean <cimport'tico_input_joy_up', nodecl> end
+function tico.input_joy_pressed(jid: TIC_JOYSTICKS_, button: TIC_JOYSTICK_BUTTON_): boolean <cimport'tico_input_joy_pressed', nodecl> end
+function tico.input_joy_released(jid: TIC_JOYSTICKS_, button: TIC_JOYSTICK_BUTTON_): boolean <cimport'tico_input_joy_released', nodecl> end
 function tico.input_get_mouse_pos(x: *cint, y: *cint) <cimport'tico_input_get_mouse_pos', nodecl> end
 function tico.input_fix_mouse() <cimport'tico_input_fix_mouse', nodecl> end
 function tico.input_release_mouse() <cimport'tico_input_release_mouse', nodecl> end
@@ -1539,20 +1539,8 @@ function tico.plugin_module_update() <cimport'tico_plugin_module_update', nodecl
 function tico.plugin_module_begin_draw() <cimport'tico_plugin_module_begin_draw', nodecl> end
 function tico.plugin_module_draw() <cimport'tico_plugin_module_draw', nodecl> end
 function tico.plugin_module_end_draw() <cimport'tico_plugin_module_end_draw', nodecl> end
-function tico.imgui_init(window: *tc_Window): cint <cimport'tico_imgui_init', nodecl> end
-function tico.imgui_update(): cint <cimport'tico_imgui_update', nodecl> end
-function tico.imgui_render(): cint <cimport'tico_imgui_render', nodecl> end
-function tico.imgui_terminate() <cimport'tico_imgui_terminate', nodecl> end
-function tico.imgui_Begin(name: cstring, open: *cint, flags: ImGuiWindowFlags_): cint <cimport'tico_imgui_Begin', nodecl> end
-function tico.imgui_End() <cimport'tico_imgui_End', nodecl> end
-function tico.window_move_callback(window: *GLFWwindow, x: cint, y: cint) <cimport'tico_window_move_callback', nodecl> end
-function tico.framebuffer_size_callback(window: *GLFWwindow, width: cint, height: cint) <cimport'tico_framebuffer_size_callback', nodecl> end
-function tico.window_key_callback(window: *GLFWwindow, key: cint, scancode: cint, action: cint, mods: cint) <cimport'tico_window_key_callback', nodecl> end
-function tico.mouse_button_callback(window: *GLFWwindow, button: cint, action: cint, mods: cint) <cimport'tico_mouse_button_callback', nodecl> end
-function tico.mouse_pos_callback(window: *GLFWwindow, posX: float64, posY: float64) <cimport'tico_mouse_pos_callback', nodecl> end
-function tico.window_focus_callback(window: *GLFWwindow, focused: cint) <cimport'tico_window_focus_callback', nodecl> end
-function tico.joystick_callback(jid: cint, event: cint) <cimport'tico_joystick_callback', nodecl> end
-function tico.mouse_scroll_callback(window: *GLFWwindow, xoffset: float64, yoffset: float64) <cimport'tico_mouse_scroll_callback', nodecl> end
+
+-- export records
 global tico.Tileset: type = @tc_Tileset
 global tico.Tilemap: type = @tc_Tilemap
 global tico.Camera: type = @tc_Camera
@@ -1610,11 +1598,42 @@ global tico.Serialization: type = @tc_Serialization
 global tico.Field: type = @tc_Field
 global tico.Meta: type = @tc_Meta
 
-global tico.WHITE: tc_Color = { 255, 255, 255, 255 }
-global tico.BLACK: tc_Color = {   0,   0,   0, 255 }
-global tico.BLUE : tc_Color = {  48,  52, 109, 255 }
-global tico.RED  : tc_Color = { 208,  70,  72, 255 }
-global tico.GREEN: tc_Color = {  52, 101,  36, 255 }
-global tico.GRAY : tc_Color = {  78,  74,  78, 255 }
-global tico.BROWN: tc_Color = { 133,  76,  48, 255 }
-global tico.BG   : tc_Color = {  75,  90,  90, 255 }
+-- export enums
+global tico.FIELD_TYPE = TIC_FIELD_TYPE_
+global tico.AUDIO_USAGE = TIC_AUDIO_USAGE_
+global tico.DRAW_MODE = TIC_DRAW_MODE_
+global tico.FRAGMENT_SHADERS = TIC_FRAGMENT_SHADERS_
+global tico.VERTEX_SHADERS = TIC_VERTEX_SHADERS_
+global tico.WindowFlags = TIC_WindowFlags_
+global tico.KEY = TIC_KEY_
+global tico.MOUSEBUTTON = TIC_MOUSEBUTTON_
+global tico.JOYSTICKS = TIC_JOYSTICKS_
+global tico.JOYSTICK_BUTTON = TIC_JOYSTICK_BUTTON_
+global tico.JOYSTICK_AXES = TIC_JOYSTICK_AXES_
+global tico.INPUT_FLAGS = TIC_INPUT_FLAGS_
+global tico.SHADER_UNIFORM = TIC_SHADER_UNIFORM_
+global tico.FILE_TYPE = TIC_FILE_TYPE_
+global tico.WRITE_MODE = TIC_WRITE_MODE_
+
+-- export constants
+global tico.RESOURCE_ERROR = TIC_RESOURCE_ERROR
+global tico.RESOURCE_LOADED = TIC_RESOURCE_LOADED
+global tico.RESOURCE_MISSING_DEP = TIC_RESOURCE_MISSING_DEP
+global tico.RESOURCE_CHANGED = TIC_RESOURCE_CHANGED
+
+global tico.CURSOR_ARROW = TIC_CURSOR_ARROW
+global tico.CURSOR_TEXT = TIC_CURSOR_TEXT
+global tico.CURSOR_CROSSHAIR = TIC_CURSOR_CROSSHAIR
+global tico.CURSOR_HAND = TIC_CURSOR_HAND
+global tico.CURSOR_HRESIZE = TIC_CURSOR_HRESIZE
+global tico.CURSOR_VRESIZE = TIC_CURSOR_VRESIZE
+
+-- create color palette with the same values as the original ones
+global tico.WHITE: tc_Color <const> = { 255, 255, 255, 255 }
+global tico.BLACK: tc_Color <const> = {   0,   0,   0, 255 }
+global tico.BLUE : tc_Color <const> = {  48,  52, 109, 255 }
+global tico.RED  : tc_Color <const> = { 208,  70,  72, 255 }
+global tico.GREEN: tc_Color <const> = {  52, 101,  36, 255 }
+global tico.GRAY : tc_Color <const> = {  78,  74,  78, 255 }
+global tico.BROWN: tc_Color <const> = { 133,  76,  48, 255 }
+global tico.BG   : tc_Color <const> = {  75,  90,  90, 255 }
