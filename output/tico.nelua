@@ -279,7 +279,7 @@ local TIC_WRITE_MODE_: type <cimport, nodecl, using> = @enum(cint){
   BINARY = 2
 }
 local tc_Filesystem: type <cimport, nodecl, forwarddecl> = @record{}
-local tc_Filesystem: type <cimport, nodecl> = @record{
+tc_Filesystem = @record{
   projectPath: [256]cchar,
   exePath: [256]cchar,
   readFile: function(*tc_Filesystem, cstring, *csize): *cuchar --[[ReadFunction]],
@@ -388,7 +388,7 @@ local TIC_FIELD_TYPE_: type <cimport, nodecl, using> = @enum(cint){
   FIELD_TYPE_REFERENCE = 10,
   FIELD_TYPE_MAX = 11
 }
-local tc_MetaFn: type <cimport, nodecl> = @record{
+local tc_MetaFn: type <cimport, nodecl, ctypedef> = @record{
   draw: function(*tc_Field, tc_Vec2, float32): void --[[drawField]],
   imgui: function(): void --[[imguiField]]
 }
@@ -402,7 +402,7 @@ local tc_FieldType: type <cimport, nodecl> = @record{
 local tc_Serialization: type <cimport, nodecl> = @record{
   types: map_fieldtype_t
 }
-local tc_Field: type <cimport, nodecl> = @record{
+tc_Field = @record{
   type: TIC_FIELD_TYPE_,
   field_type: *tc_FieldType,
   name: [128]cchar,
@@ -421,7 +421,7 @@ local tc_Field: type <cimport, nodecl> = @record{
   parent: *tc_Field,
   child: *tc_Field
 }
-local tc_Meta: type <cimport, nodecl> = @record{
+tc_Meta = @record{
   fields: map_field_t
 }
 function tico.serialization_init() <cimport'tico_serialization_init', nodecl> end
@@ -682,7 +682,7 @@ function tico.plugin_lua_pcall(name: cstring, n: cint) <cimport'tico_plugin_lua_
 local tc_Resource: type <cimport, nodecl, forwarddecl> = @record{}
 local tc_ResourceDep: type <cimport, nodecl, forwarddecl> = @record{}
 local tc_ResourcePlugin: type <cimport, nodecl, forwarddecl> = @record{}
-local tc_ResourceDep: type <cimport, nodecl> = @record{
+tc_ResourceDep = @record{
   name: [256]cchar,
   res_key: [256]cchar,
   res: *tc_Resource
@@ -691,7 +691,7 @@ local TIC_RESOURCE_ERROR: cint <comptime> = 1
 local TIC_RESOURCE_LOADED: cint <comptime> = 2
 local TIC_RESOURCE_MISSING_DEP: cint <comptime> = 4
 local TIC_RESOURCE_CHANGED: cint <comptime> = 8
-local tc_Resource: type <cimport, nodecl> = @record{
+tc_Resource = @record{
   status: cint,
   changed: cint,
   type: [64]cchar,
@@ -701,7 +701,7 @@ local tc_Resource: type <cimport, nodecl> = @record{
   data: pointer
 }
 local tc_ResourceManager: type <cimport, nodecl, forwarddecl> = @record{}
-local tc_ResourcePlugin: type <cimport, nodecl> = @record{
+tc_ResourcePlugin = @record{
   loader: function(*tc_ResourceManager, *tc_Resource, *cJSON): tc_Resource --[[PluginResourceLoader]],
   store: function(*tc_ResourceManager, *tc_Resource): *cJSON --[[PluginResourceStore]]
 }
@@ -724,7 +724,7 @@ function tico.plugin_resource_tilemap_store(manager: *tc_ResourceManager, res: *
 function tico.plugin_resource_object(): tc_ResourcePlugin <cimport'tico_plugin_resource_object', nodecl> end
 function tico.plugin_resource_object_loader(manager: *tc_ResourceManager, res: *tc_Resource, json: *cJSON): tc_Resource <cimport'tico_plugin_resource_object_loader', nodecl> end
 function tico.plugin_resource_object_store(manager: *tc_ResourceManager, res: *tc_Resource): *cJSON <cimport'tico_plugin_resource_object_store', nodecl> end
-local tc_ResourceManager: type <cimport, nodecl> = @record{
+tc_ResourceManager = @record{
   path: [256]cchar,
   resources: map_resource_t,
   plugins: map_resplugin_t,
@@ -824,7 +824,7 @@ local tc_GridTool: type <cimport, nodecl> = @record{
   scrolling: tc_Vec2,
   scale: cint
 }
-local tc_EditorFolder: type <cimport, nodecl> = @record{
+tc_EditorFolder = @record{
   name: [64]cchar,
   child: *tc_EditorFolder,
   next: *tc_EditorFolder,
@@ -841,7 +841,7 @@ local tc_EditorPlugin: type <cimport, nodecl> = @record{
   destroy: function(pointer): cint --[[EditorPluginUpdate]],
   save: function(pointer): cint --[[EditorPluginUpdate]]
 }
-local tc_EditorWindow: type <cimport, nodecl> = @record{
+tc_EditorWindow = @record{
   title: [128]cchar,
   open: cint,
   res: *tc_Resource,
