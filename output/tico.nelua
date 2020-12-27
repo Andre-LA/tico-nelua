@@ -1637,3 +1637,27 @@ global tico.GREEN: tc_Color <const> = {  52, 101,  36, 255 }
 global tico.GRAY : tc_Color <const> = {  78,  74,  78, 255 }
 global tico.BROWN: tc_Color <const> = { 133,  76,  48, 255 }
 global tico.BG   : tc_Color <const> = {  75,  90,  90, 255 }
+
+
+
+-- apply operator overloading
+function tc_Vec2.__eq(a: tc_Vec2, b: tc_Vec2): boolean <cimport'tico_vec2_equals', nodecl> end
+function tc_Vec2.__len(v: tc_Vec2): boolean <cimport'tico_vec2_len', nodecl> end
+function tc_Vec2.__add(a: tc_Vec2, b: tc_Vec2): tc_Vec2 <inline> tico.vec2_add(&a, a, b) return a end
+function tc_Vec2.__sub(a: tc_Vec2, b: tc_Vec2): tc_Vec2 <inline> tico.vec2_sub(&a, a, b) return a end
+function tc_Vec2.__mul(a: tc_Vec2, n: float32): tc_Vec2 <inline> tico.vec2_mul(&a, a, n) return a end
+function tc_Vec2.__div(a: tc_Vec2, n: float32): tc_Vec2 <inline> tico.vec2_div(&a, a, n) return a end
+
+function tc_Vec3.__eq(a: tc_Vec3, b: tc_Vec3): boolean <cimport'tico_vec3_equals', nodecl> end
+function tc_Vec3.__len(v: tc_Vec3): boolean <cimport'tico_vec3_len', nodecl> end
+function tc_Vec3.__add(a: tc_Vec3, b: tc_Vec3): tc_Vec3 <inline> tico.vec3_add(&a, a, b) return a end
+function tc_Vec3.__sub(a: tc_Vec3, b: tc_Vec3): tc_Vec3 <inline> tico.vec3_sub(&a, a, b) return a end
+function tc_Vec3.__mul(a: tc_Vec3, n: float32): tc_Vec3 <inline> tico.vec3_mul(&a, a, n) return a end
+function tc_Vec3.__div(a: tc_Vec3, n: float32): tc_Vec3 <inline> tico.vec3_div(&a, a, n) return a end
+
+function tc_Vec4.__eq(a: tc_Vec4, b: tc_Vec4): boolean <cimport'tico_vec4_equals', nodecl> end
+function tc_Vec4.__len(v: tc_Vec4): boolean <cimport'tico_vec4_len', nodecl> end
+function tc_Vec4.__add(a: tc_Vec4, b: tc_Vec4): tc_Vec4 <inline> tico.vec4_add(&a, a, b) return a end
+function tc_Vec4.__sub(a: tc_Vec4, b: tc_Vec4): tc_Vec4 <inline> tico.vec4_sub(&a, a, b) return a end
+function tc_Vec4.__mul(a: tc_Vec4, n: float32): tc_Vec4 <inline> tico.vec4_mul(&a, a, n) return a end
+function tc_Vec4.__div(a: tc_Vec4, n: float32): tc_Vec4 <inline> tico.vec4_div(&a, a, n) return a end

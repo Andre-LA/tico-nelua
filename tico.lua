@@ -65,6 +65,30 @@ local function gen_records(from)
   return table.concat(result, '\n')
 end
 
+local function gen_math_op_overloading()
+  local result = {}
+
+  local vec_op_template = table.concat( -- Vec1 will be replaced as Vec2, Vec3, ..., the same goes for vecN
+    {
+    "function tc_VecN.__eq(a: tc_VecN, b: tc_VecN): boolean <cimport'tico_vecN_equals', nodecl> end",
+    "function tc_VecN.__len(v: tc_VecN): boolean <cimport'tico_vecN_len', nodecl> end",
+    "function tc_VecN.__add(a: tc_VecN, b: tc_VecN): tc_VecN <inline> tico.vecN_add(&a, a, b) return a end",
+    "function tc_VecN.__sub(a: tc_VecN, b: tc_VecN): tc_VecN <inline> tico.vecN_sub(&a, a, b) return a end",
+    "function tc_VecN.__mul(a: tc_VecN, n: float32): tc_VecN <inline> tico.vecN_mul(&a, a, n) return a end",
+    "function tc_VecN.__div(a: tc_VecN, n: float32): tc_VecN <inline> tico.vecN_div(&a, a, n) return a end"
+    },
+    '\n'
+  )
+
+  -- TODO: investigate and add others (like tc_Matrix)
+
+  for i = 2, 4 do
+    table.insert(result, string.gsub(vec_op_template, '([vV]ec)N', '%1'..i) .. '\n')
+  end
+
+  return table.concat(result, '\n')
+end
+
 nldecl.include_names = {
   '^tico_',
   '^tc_',
@@ -125,7 +149,10 @@ table.concat(
 
 }, '\n')
 
-nldecl.append_code = [=[
+nldecl.append_code = table.concat(
+
+{
+[=[
 
 -- export records
 global tico.Tileset: type = @tc_Tileset
@@ -224,7 +251,14 @@ global tico.GREEN: tc_Color <const> = {  52, 101,  36, 255 }
 global tico.GRAY : tc_Color <const> = {  78,  74,  78, 255 }
 global tico.BROWN: tc_Color <const> = { 133,  76,  48, 255 }
 global tico.BG   : tc_Color <const> = {  75,  90,  90, 255 }
-]=]
+
+]=],
+
+'\n-- apply operator overloading',
+
+gen_math_op_overloading()
+
+}, '\n')
 
 nldecl.on_finish = function()
   local function gen_callback_gsub(varname, vartypename, vartype, nocomment)
@@ -346,6 +380,7 @@ nldecl.on_finish = function()
   -- convert cint returns to boolean returns --
   -- ======================================= --
 
+      -- TODO: Add boolean returns only where makes sense
       -- tico.audio_init(): cint
       -- tico.audio_start_device(): cint
       -- tico.audio_stop_device(): cint
