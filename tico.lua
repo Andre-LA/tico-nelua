@@ -486,12 +486,12 @@ nldecl.on_finish = function()
       -- tico.input_get_mouse_code(name: cstring): cint
       :gsub('(.-_is_.-%(.-%): )cint(.-end)', '%1boolean%2')
 
-      :gsub('(_down%(.-%): )cint', '%1boolean')
-      :gsub('(_pressed%(.-%): )cint', '%1boolean')
-      :gsub('(_up%(.-%): )cint', '%1boolean')
-      :gsub('(_released%(.-%): )cint', '%1boolean')
+      :gsub('(_down%(.-%): )cint(.-end)', '%1boolean%2')
+      :gsub('(_pressed%(.-%): )cint(.-end)', '%1boolean%2')
+      :gsub('(_up%(.-%): )cint(.-end)', '%1boolean%2')
+      :gsub('(_released%(.-%): )cint(.-end)', '%1boolean%2')
 
-      :gsub('(_equals%(.-%): )cint', '%1boolean')
+      :gsub('(_equals%(.-%): )cint(.-end)', '%1boolean%2')
   end
 
   --print(binding_content)
