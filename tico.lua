@@ -484,6 +484,8 @@ nldecl.on_finish = function()
       -- tico.input_get_joy_btncode(name: cstring): cint
       -- tico.input_get_joy_axiscode(name: cstring): cint
       -- tico.input_get_mouse_code(name: cstring): cint
+      :gsub('(.-_is_.-%(.-%): )cint(.-end)', '%1boolean%2')
+
       :gsub('(_down%(.-%): )cint', '%1boolean')
       :gsub('(_pressed%(.-%): )cint', '%1boolean')
       :gsub('(_up%(.-%): )cint', '%1boolean')

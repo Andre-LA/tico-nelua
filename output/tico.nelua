@@ -288,7 +288,7 @@ tc_Filesystem = @record{
   packed: cint
 }
 function tico.filesystem_init(fs: *tc_Filesystem): cint <cimport'tico_filesystem_init', nodecl> end
-function tico.json_is_valid(filename: cstring): cint <cimport'tico_json_is_valid', nodecl> end
+function tico.json_is_valid(filename: cstring): boolean <cimport'tico_json_is_valid', nodecl> end
 function tico.json_open(filename: cstring): *cJSON <cimport'tico_json_open', nodecl> end
 function tico.json_parse(jsonStr: cstring): *cJSON <cimport'tico_json_parse', nodecl> end
 function tico.json_clone(src: *cJSON): *cJSON <cimport'tico_json_clone', nodecl> end
@@ -299,7 +299,7 @@ function tico.json_delete(json: *cJSON) <cimport'tico_json_delete', nodecl> end
 function tico.json_add_item(json: *cJSON, name: cstring, item: *cJSON): cint <cimport'tico_json_add_item', nodecl> end
 function tico.json_get_item(json: *cJSON, name: cstring, index: cint): *cJSON <cimport'tico_json_get_item', nodecl> end
 function tico.json_create_string(value: cstring): *cJSON <cimport'tico_json_create_string', nodecl> end
-function tico.json_is_string(json: *cJSON): cint <cimport'tico_json_is_string', nodecl> end
+function tico.json_is_string(json: *cJSON): boolean <cimport'tico_json_is_string', nodecl> end
 function tico.json_set_string(json: *cJSON, value: cstring) <cimport'tico_json_set_string', nodecl> end
 function tico.json_to_string(json: *cJSON): cstring <cimport'tico_json_to_string', nodecl> end
 function tico.json_opt_string(json: *cJSON, opt: cstring): cstring <cimport'tico_json_opt_string', nodecl> end
@@ -307,7 +307,7 @@ function tico.json_add_string(json: *cJSON, name: cstring, value: cstring): *cJS
 function tico.json_get_string(json: *cJSON, name: cstring, index: cint): cstring <cimport'tico_json_get_string', nodecl> end
 function tico.json_get_opt_string(json: *cJSON, name: cstring, index: cint, opt: cstring): cstring <cimport'tico_json_get_opt_string', nodecl> end
 function tico.json_create_number(value: float32): *cJSON <cimport'tico_json_create_number', nodecl> end
-function tico.json_is_number(json: *cJSON): cint <cimport'tico_json_is_number', nodecl> end
+function tico.json_is_number(json: *cJSON): boolean <cimport'tico_json_is_number', nodecl> end
 function tico.json_set_number(json: *cJSON, value: float32) <cimport'tico_json_set_number', nodecl> end
 function tico.json_to_number(json: *cJSON): float32 <cimport'tico_json_to_number', nodecl> end
 function tico.json_opt_number(json: *cJSON, opt: float32): float32 <cimport'tico_json_opt_number', nodecl> end
@@ -315,7 +315,7 @@ function tico.json_add_number(json: *cJSON, name: cstring, value: float32): *cJS
 function tico.json_get_number(json: *cJSON, name: cstring, index: cint): float32 <cimport'tico_json_get_number', nodecl> end
 function tico.json_get_opt_number(json: *cJSON, name: cstring, index: cint, opt: float32): float32 <cimport'tico_json_get_opt_number', nodecl> end
 function tico.json_create_boolean(value: cint): *cJSON <cimport'tico_json_create_boolean', nodecl> end
-function tico.json_is_boolean(json: *cJSON): cint <cimport'tico_json_is_boolean', nodecl> end
+function tico.json_is_boolean(json: *cJSON): boolean <cimport'tico_json_is_boolean', nodecl> end
 function tico.json_set_boolean(json: *cJSON, value: cint) <cimport'tico_json_set_boolean', nodecl> end
 function tico.json_to_boolean(json: *cJSON): cint <cimport'tico_json_to_boolean', nodecl> end
 function tico.json_opt_boolean(json: *cJSON, opt: cint): cint <cimport'tico_json_opt_boolean', nodecl> end
@@ -323,7 +323,7 @@ function tico.json_add_boolean(json: *cJSON, name: cstring, value: cint): *cJSON
 function tico.json_get_boolean(json: *cJSON, name: cstring, index: cint): cint <cimport'tico_json_get_boolean', nodecl> end
 function tico.json_get_opt_boolean(json: *cJSON, name: cstring, index: cint, opt: cint): cint <cimport'tico_json_get_opt_boolean', nodecl> end
 function tico.json_create_vec2(value: tc_Vec2): *cJSON <cimport'tico_json_create_vec2', nodecl> end
-function tico.json_is_vec2(json: *cJSON): cint <cimport'tico_json_is_vec2', nodecl> end
+function tico.json_is_vec2(json: *cJSON): boolean <cimport'tico_json_is_vec2', nodecl> end
 function tico.json_set_vec2(json: *cJSON, value: tc_Vec2) <cimport'tico_json_set_vec2', nodecl> end
 function tico.json_to_vec2(json: *cJSON): tc_Vec2 <cimport'tico_json_to_vec2', nodecl> end
 function tico.json_opt_vec2(json: *cJSON, opt: tc_Vec2): tc_Vec2 <cimport'tico_json_opt_vec2', nodecl> end
@@ -331,7 +331,7 @@ function tico.json_add_vec2(json: *cJSON, name: cstring, value: tc_Vec2): *cJSON
 function tico.json_get_vec2(json: *cJSON, name: cstring, index: cint): tc_Vec2 <cimport'tico_json_get_vec2', nodecl> end
 function tico.json_get_opt_vec2(json: *cJSON, name: cstring, index: cint, opt: tc_Vec2): tc_Vec2 <cimport'tico_json_get_opt_vec2', nodecl> end
 function tico.json_create_vec3(value: tc_Vec3): *cJSON <cimport'tico_json_create_vec3', nodecl> end
-function tico.json_is_vec3(json: *cJSON): cint <cimport'tico_json_is_vec3', nodecl> end
+function tico.json_is_vec3(json: *cJSON): boolean <cimport'tico_json_is_vec3', nodecl> end
 function tico.json_set_vec3(json: *cJSON, value: tc_Vec3) <cimport'tico_json_set_vec3', nodecl> end
 function tico.json_to_vec3(json: *cJSON): tc_Vec3 <cimport'tico_json_to_vec3', nodecl> end
 function tico.json_opt_vec3(json: *cJSON, opt: tc_Vec3): tc_Vec3 <cimport'tico_json_opt_vec3', nodecl> end
@@ -339,7 +339,7 @@ function tico.json_add_vec3(json: *cJSON, name: cstring, value: tc_Vec3): *cJSON
 function tico.json_get_vec3(json: *cJSON, name: cstring, index: cint): tc_Vec3 <cimport'tico_json_get_vec3', nodecl> end
 function tico.json_get_opt_vec3(json: *cJSON, name: cstring, index: cint, opt: tc_Vec3): tc_Vec3 <cimport'tico_json_get_opt_vec3', nodecl> end
 function tico.json_create_vec4(value: tc_Vec4): *cJSON <cimport'tico_json_create_vec4', nodecl> end
-function tico.json_is_vec4(json: *cJSON): cint <cimport'tico_json_is_vec4', nodecl> end
+function tico.json_is_vec4(json: *cJSON): boolean <cimport'tico_json_is_vec4', nodecl> end
 function tico.json_set_vec4(json: *cJSON, value: tc_Vec4) <cimport'tico_json_set_vec4', nodecl> end
 function tico.json_to_vec4(json: *cJSON): tc_Vec4 <cimport'tico_json_to_vec4', nodecl> end
 function tico.json_opt_vec4(json: *cJSON, opt: tc_Vec4): tc_Vec4 <cimport'tico_json_opt_vec4', nodecl> end
@@ -347,7 +347,7 @@ function tico.json_add_vec4(json: *cJSON, name: cstring, value: tc_Vec4): *cJSON
 function tico.json_get_vec4(json: *cJSON, name: cstring, index: cint): tc_Vec4 <cimport'tico_json_get_vec4', nodecl> end
 function tico.json_get_opt_vec4(json: *cJSON, name: cstring, index: cint, opt: tc_Vec4): tc_Vec4 <cimport'tico_json_get_opt_vec4', nodecl> end
 function tico.json_create_array(value: *cJSON): *cJSON <cimport'tico_json_create_array', nodecl> end
-function tico.json_is_array(json: *cJSON): cint <cimport'tico_json_is_array', nodecl> end
+function tico.json_is_array(json: *cJSON): boolean <cimport'tico_json_is_array', nodecl> end
 function tico.json_set_array(json: *cJSON, value: *cJSON) <cimport'tico_json_set_array', nodecl> end
 function tico.json_to_array(json: *cJSON): *cJSON <cimport'tico_json_to_array', nodecl> end
 function tico.json_opt_array(json: *cJSON, opt: *cJSON): *cJSON <cimport'tico_json_opt_array', nodecl> end
@@ -355,7 +355,7 @@ function tico.json_add_array(json: *cJSON, name: cstring, value: *cJSON): *cJSON
 function tico.json_get_array(json: *cJSON, name: cstring, index: cint): *cJSON <cimport'tico_json_get_array', nodecl> end
 function tico.json_get_opt_array(json: *cJSON, name: cstring, index: cint, opt: *cJSON): *cJSON <cimport'tico_json_get_opt_array', nodecl> end
 function tico.json_create_int_array(value: *cint): *cJSON <cimport'tico_json_create_int_array', nodecl> end
-function tico.json_is_int_array(json: *cJSON): cint <cimport'tico_json_is_int_array', nodecl> end
+function tico.json_is_int_array(json: *cJSON): boolean <cimport'tico_json_is_int_array', nodecl> end
 function tico.json_set_int_array(json: *cJSON, value: *cint) <cimport'tico_json_set_int_array', nodecl> end
 function tico.json_to_int_array(json: *cJSON): *cint <cimport'tico_json_to_int_array', nodecl> end
 function tico.json_opt_int_array(json: *cJSON, opt: *cint): *cint <cimport'tico_json_opt_int_array', nodecl> end
@@ -363,7 +363,7 @@ function tico.json_add_int_array(json: *cJSON, name: cstring, value: *cint): *cJ
 function tico.json_get_int_array(json: *cJSON, name: cstring, index: cint): *cint <cimport'tico_json_get_int_array', nodecl> end
 function tico.json_get_opt_int_array(json: *cJSON, name: cstring, index: cint, opt: *cint): *cint <cimport'tico_json_get_opt_int_array', nodecl> end
 function tico.json_create_object(value: *cJSON): *cJSON <cimport'tico_json_create_object', nodecl> end
-function tico.json_is_object(json: *cJSON): cint <cimport'tico_json_is_object', nodecl> end
+function tico.json_is_object(json: *cJSON): boolean <cimport'tico_json_is_object', nodecl> end
 function tico.json_set_object(json: *cJSON, value: *cJSON) <cimport'tico_json_set_object', nodecl> end
 function tico.json_to_object(json: *cJSON): *cJSON <cimport'tico_json_to_object', nodecl> end
 function tico.json_opt_object(json: *cJSON, opt: *cJSON): *cJSON <cimport'tico_json_opt_object', nodecl> end
@@ -805,7 +805,7 @@ function tico.object_create(type: cstring, position: tc_Vec2): tc_Object <cimpor
 function tico.object_from_json(json: *tc_Field): tc_Object <cimport'tico_object_from_json', nodecl> end
 function tico.object_update(object: *tc_Object) <cimport'tico_object_update', nodecl> end
 function tico.object_draw(object: *tc_Object, origin: tc_Vec2, scale: float32, selected: cint) <cimport'tico_object_draw', nodecl> end
-function tico.object_is_hovered(object: *tc_Object, origin: tc_Vec2, scale: float32): cint <cimport'tico_object_is_hovered', nodecl> end
+function tico.object_is_hovered(object: *tc_Object, origin: tc_Vec2, scale: float32): boolean <cimport'tico_object_is_hovered', nodecl> end
 function tico.widget_object_init(widget: *tc_ObjectWidget, data: *tc_Field): cint <cimport'tico_widget_object_init', nodecl> end
 function tico.widget_object_deinit(widget: *tc_ObjectWidget) <cimport'tico_widget_object_deinit', nodecl> end
 function tico.widget_object_update(widget: *tc_ObjectWidget, panel: *tc_PanelWidget): cint <cimport'tico_widget_object_update', nodecl> end
@@ -912,16 +912,16 @@ function tico.buffer_play(audioBuffer: *tc_AudioBuffer) <cimport'tico_buffer_pla
 function tico.buffer_stop(audioBuffer: *tc_AudioBuffer) <cimport'tico_buffer_stop', nodecl> end
 function tico.buffer_pause(audioBuffer: *tc_AudioBuffer) <cimport'tico_buffer_pause', nodecl> end
 function tico.buffer_unload(audioBuffer: *tc_AudioBuffer) <cimport'tico_buffer_unload', nodecl> end
-function tico.buffer_is_playing(audioBuffer: *tc_AudioBuffer): cint <cimport'tico_buffer_is_playing', nodecl> end
-function tico.buffer_is_paused(audioBuffer: *tc_AudioBuffer): cint <cimport'tico_buffer_is_paused', nodecl> end
+function tico.buffer_is_playing(audioBuffer: *tc_AudioBuffer): boolean <cimport'tico_buffer_is_playing', nodecl> end
+function tico.buffer_is_paused(audioBuffer: *tc_AudioBuffer): boolean <cimport'tico_buffer_is_paused', nodecl> end
 function tico.buffer_set_volume(audioBuffer: *tc_AudioBuffer, volume: float32) <cimport'tico_buffer_set_volume', nodecl> end
 function tico.sound_load(filename: cstring, usage: TIC_AUDIO_USAGE_): tc_Sound <cimport'tico_sound_load', nodecl> end
 function tico.sound_unload(sound: tc_Sound) <cimport'tico_sound_unload', nodecl> end
 function tico.sound_play(sound: tc_Sound) <cimport'tico_sound_play', nodecl> end
 function tico.sound_stop(sound: tc_Sound) <cimport'tico_sound_stop', nodecl> end
 function tico.sound_pause(sound: tc_Sound) <cimport'tico_sound_pause', nodecl> end
-function tico.sound_is_playing(sound: tc_Sound): cint <cimport'tico_sound_is_playing', nodecl> end
-function tico.sound_is_paused(sound: tc_Sound): cint <cimport'tico_sound_is_paused', nodecl> end
+function tico.sound_is_playing(sound: tc_Sound): boolean <cimport'tico_sound_is_playing', nodecl> end
+function tico.sound_is_paused(sound: tc_Sound): boolean <cimport'tico_sound_is_paused', nodecl> end
 function tico.sound_set_volume(sound: tc_Sound, volume: float32) <cimport'tico_sound_set_volume', nodecl> end
 function tico.audio_data_free(data: *tc_AudioData) <cimport'tico_audio_data_free', nodecl> end
 local TIC_DRAW_MODE_: type <cimport, nodecl, using> = @enum(cint){
@@ -1012,8 +1012,8 @@ function tico.render_begin(render: *tc_Render) <cimport'tico_render_begin', node
 function tico.render_flush(render: *tc_Render) <cimport'tico_render_flush', nodecl> end
 function tico.render_draw(render: *tc_Render) <cimport'tico_render_draw', nodecl> end
 function tico.render_clear(render: *tc_Render) <cimport'tico_render_clear', nodecl> end
-function tico.render_is_empty(render: *tc_Render): cint <cimport'tico_render_is_empty', nodecl> end
-function tico.render_is_full(render: *tc_Render, vertices: cint): cint <cimport'tico_render_is_full', nodecl> end
+function tico.render_is_empty(render: *tc_Render): boolean <cimport'tico_render_is_empty', nodecl> end
+function tico.render_is_full(render: *tc_Render, vertices: cint): boolean <cimport'tico_render_is_full', nodecl> end
 function tico.render_draw_reset(render: *tc_Render) <cimport'tico_render_draw_reset', nodecl> end
 function tico.render_reset_if_full(render: *tc_Render, vertex: cint) <cimport'tico_render_reset_if_full', nodecl> end
 function tico.drawcall_create(start: cint, texture: cint, mode: TIC_DRAW_MODE_, clip: *tc_Rect, modelview: tc_Matrix): tc_DrawCall <cimport'tico_drawcall_create', nodecl> end
@@ -1038,8 +1038,8 @@ function tico.batch_begin(batch: *tc_Batch) <cimport'tico_batch_begin', nodecl> 
 function tico.batch_flush(batch: *tc_Batch) <cimport'tico_batch_flush', nodecl> end
 function tico.batch_draw(batch: *tc_Batch) <cimport'tico_batch_draw', nodecl> end
 function tico.batch_clear(batch: *tc_Batch) <cimport'tico_batch_clear', nodecl> end
-function tico.batch_is_empty(batch: tc_Batch): cint <cimport'tico_batch_is_empty', nodecl> end
-function tico.batch_is_full(batch: tc_Batch, vertices: cint): cint <cimport'tico_batch_is_full', nodecl> end
+function tico.batch_is_empty(batch: tc_Batch): boolean <cimport'tico_batch_is_empty', nodecl> end
+function tico.batch_is_full(batch: tc_Batch, vertices: cint): boolean <cimport'tico_batch_is_full', nodecl> end
 function tico.batch_draw_reset(batch: *tc_Batch) <cimport'tico_batch_draw_reset', nodecl> end
 function tico.batch_reset_if_full(batch: *tc_Batch, vertex: cint) <cimport'tico_batch_reset_if_full', nodecl> end
 local tc_Graphics: type <cimport, nodecl> = @record{
@@ -1409,7 +1409,7 @@ function tico.main_loop(): cint <cimport'tico_main_loop', nodecl> end
 function tico.plugins_default() <cimport'tico_plugins_default', nodecl> end
 function tico.plugins_enable(name: cstring) <cimport'tico_plugins_enable', nodecl> end
 function tico.plugins_disable(name: cstring) <cimport'tico_plugins_disable', nodecl> end
-function tico.plugins_is_active(name: cstring): cint <cimport'tico_plugins_is_active', nodecl> end
+function tico.plugins_is_active(name: cstring): boolean <cimport'tico_plugins_is_active', nodecl> end
 function tico.plugins_get(name: cstring): *tc_Plugin <cimport'tico_plugins_get', nodecl> end
 function tico.plugins_init() <cimport'tico_plugins_init', nodecl> end
 function tico.plugins_update() <cimport'tico_plugins_update', nodecl> end
@@ -1423,7 +1423,7 @@ function tico.timer_get_delta(): float32 <cimport'tico_timer_get_delta', nodecl>
 function tico.timer_get_fps(): cint <cimport'tico_timer_get_fps', nodecl> end
 function tico.timer_wait(ms: float32) <cimport'tico_timer_wait', nodecl> end
 function tico.filesystem_set_packed(packed: cint) <cimport'tico_filesystem_set_packed', nodecl> end
-function tico.filesystem_is_packed(): cint <cimport'tico_filesystem_is_packed', nodecl> end
+function tico.filesystem_is_packed(): boolean <cimport'tico_filesystem_is_packed', nodecl> end
 function tico.filesystem_set_path(path: cstring) <cimport'tico_filesystem_set_path', nodecl> end
 function tico.filesystem_get_path(): *cuchar <cimport'tico_filesystem_get_path', nodecl> end
 function tico.filesystem_resolve_path(outName: cstring, filename: cstring) <cimport'tico_filesystem_resolve_path', nodecl> end
@@ -1520,10 +1520,10 @@ function tico.window_get_size(width: *cint, height: *cint) <cimport'tico_window_
 function tico.window_set_size(width: cint, height: cint) <cimport'tico_window_set_size', nodecl> end
 function tico.window_get_title(): cstring <cimport'tico_window_get_title', nodecl> end
 function tico.window_set_title(title: cstring) <cimport'tico_window_set_title', nodecl> end
-function tico.window_is_fullscreen(): cint <cimport'tico_window_is_fullscreen', nodecl> end
+function tico.window_is_fullscreen(): boolean <cimport'tico_window_is_fullscreen', nodecl> end
 function tico.window_set_fullscreen(fullscreen: cint) <cimport'tico_window_set_fullscreen', nodecl> end
 function tico.window_toggle_fullscreen() <cimport'tico_window_toggle_fullscreen', nodecl> end
-function tico.window_is_resizable(): cint <cimport'tico_window_is_resizable', nodecl> end
+function tico.window_is_resizable(): boolean <cimport'tico_window_is_resizable', nodecl> end
 function tico.window_set_resizable(resizable: cint) <cimport'tico_window_set_resizable', nodecl> end
 function tico.window_toggle_resizable() <cimport'tico_window_toggle_resizable', nodecl> end
 function tico.window_get_vsync(): cint <cimport'tico_window_get_vsync', nodecl> end
@@ -1531,7 +1531,7 @@ function tico.window_set_vsync(vsync: cint) <cimport'tico_window_set_vsync', nod
 function tico.plugin_add_plugin(name: cstring, plugin: tc_Plugin) <cimport'tico_plugin_add_plugin', nodecl> end
 function tico.plugin_enable_plugin(name: cstring) <cimport'tico_plugin_enable_plugin', nodecl> end
 function tico.plugin_disable_plugin(name: cstring) <cimport'tico_plugin_disable_plugin', nodecl> end
-function tico.plugin_is_active(name: cstring): cint <cimport'tico_plugin_is_active', nodecl> end
+function tico.plugin_is_active(name: cstring): boolean <cimport'tico_plugin_is_active', nodecl> end
 function tico.plugin_get(name: cstring): *tc_Plugin <cimport'tico_plugin_get', nodecl> end
 function tico.plugin_module_init(): cint <cimport'tico_plugin_module_init', nodecl> end
 function tico.plugin_module_terminate() <cimport'tico_plugin_module_terminate', nodecl> end
