@@ -17,14 +17,11 @@ require 'output.tico'
 local nelua_argc: cint <cimport, nodecl>
 local nelua_argv: *[0]cstring <cimport, nodecl>
 
-local Config = tico.Config
-
-local config: Config = tico.config_init("basic test", 640, 380, nelua_argc, nelua_argv)
+local config = tico.config_init('basic test', 640, 380, nelua_argc, nelua_argv)
 tico.init(config)
 
 while not tico.window_should_close() do -- main loop
   tico.update() -- update inputs, timers, ...
-
 
   -- [[ begin batch render [[
   tico.begin_draw()
