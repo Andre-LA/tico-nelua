@@ -71,7 +71,7 @@ local function gen_math_op_overloading()
   local vec_op_template = table.concat( -- Vec1 will be replaced as Vec2, Vec3, ..., the same goes for vecN
     {
     "function tc_VecN.__eq(a: tc_VecN, b: tc_VecN): boolean <cimport'tico_vecN_equals', nodecl> end",
-    "function tc_VecN.__len(v: tc_VecN): boolean <cimport'tico_vecN_len', nodecl> end",
+    "function tc_VecN.__len(v: tc_VecN): float32 <cimport'tico_vecN_len', nodecl> end",
     "function tc_VecN.__add(a: tc_VecN, b: tc_VecN): tc_VecN <inline> tico.vecN_add(&a, a, b) return a end",
     "function tc_VecN.__sub(a: tc_VecN, b: tc_VecN): tc_VecN <inline> tico.vecN_sub(&a, a, b) return a end",
     "function tc_VecN.__mul(a: tc_VecN, n: float32): tc_VecN <inline> tico.vecN_mul(&a, a, n) return a end",
