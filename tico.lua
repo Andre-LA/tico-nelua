@@ -6,65 +6,6 @@ package.path = package.path .. ';./nelua-decl/?.lua'
 
 local nldecl = require'nldecl'
 
-local maps = {
-  'map_fieldtype_t',
-  'map_field_t',
-  'map_anim_t',
-  'map_plugin_t',
-  'map_deps_t',
-  'map_resource_t',
-  'map_resref_t',
-  'map_resplugin_t',
-  'map_editorplugin_t',
-  'map_editorwindow_t',
-  'map_object_t',
-  'map_void_t',
-  'map_str_t',
-  'map_int_t',
-  'map_char_t',
-  'map_float_t',
-  'map_double_t'
-}
-
-local vecs = {
-  'vec_canvas_t',
-  'vec_void_t',
-  'vec_str_t',
-  'vec_int_t',
-  'vec_char_t',
-  'vec_float_t',
-  'vec_double_t'
-}
-
-local lists = {
-  'list_resdep_t',
-  'list_int_t',
-  'list_char_t',
-  'list_str_t',
-  'list_float_t'
-}
-
-local stacks = {
-  'stack_canvas_t',
-  'stack_shader_t',
-  'stack_matrix_t'
-}
-
-local function gen_records(from)
-  local result = {}
-
-  for i = 1, #from do
-    local Tname = from[i]
-
-    table.insert(result, string.format(
-      'local %s: type <cimport, nodecl> = @record{}',
-      Tname
-    ))
-  end
-
-  return table.concat(result, '\n')
-end
-
 local function gen_math_op_overloading()
   local result = {}
 
@@ -93,18 +34,24 @@ nldecl.include_names = {
   '^tico_',
   '^tc_',
   '^TIC_',
+
+  cJSON = true,
+  LuaFunction = true,
+  '^stb',
+
+  'map_.-_t',
+  'vec_.-_t',
+  'list_.-_t',
+  'stack_.-_t',
 }
 
 nldecl.exclude_names = {
   '_internal$'
 }
 
-nldecl.prepend_code = table.concat(
-{
-
-[=[
+nldecl.prepend_code = [=[
 ##[[
-  if not TICO.SHARED then
+  if not TICO.shared then
     cflags('-L '..TICO.L)
 
     cflags('-I '..TICO.I.include)
@@ -125,36 +72,22 @@ nldecl.prepend_code = table.concat(
   cinclude'<tico.h>'
 ]]
 
-local stbtt_fontinfo: type <cimport, nodecl> = @record{}
-local cJSON: type <cimport, nodecl> = @record{}
-local lua_State: type <cimport, nodecl> = @record{}
-local LuaFunction: type <cimport, nodecl> = @function(*lua_State): cint
-local map_base_t <cimport, nodecl> = @record{}
 local ma_decoder <cimport, nodecl> = @record{}
 local GLFWcursor <cimport, nodecl> = @record{}
-local GLFWwindow <cimport, nodecl> = @record{}
-local ImGuiWindowFlags_ <cimport, nodecl> = @record{}
+local lua_State <cimport, nodecl> = @record{}
 
-]=],
-table.concat(
-  {
-    gen_records(maps),
-    gen_records(vecs),
-    gen_records(lists),
-    gen_records(stacks)
-  },
-  '\n'
-),
-"\nglobal tico = @record{}\n\n"
+global tico = @record{}
 
-}, '\n')
+]=]
+
 
 nldecl.append_code = table.concat(
-
 {
 [=[
 
 -- export records
+global tico.cJSON: type = @cJSON
+
 global tico.Tileset: type = @tc_Tileset
 global tico.Tilemap: type = @tc_Tilemap
 global tico.Camera: type = @tc_Camera
@@ -280,9 +213,10 @@ nldecl.on_finish = function()
   -- basic namespacing --
   -- ================= --
 
-      :gsub('global function tico_(.-)%((.-)<cimport,', "function tico.%1(%2<cimport'tico_%1',")
-      :gsub('global TIC_', 'local TIC_')
-      :gsub('global tc_', 'local tc_')
+      :gsub('global (.-)', 'local %1')
+      :gsub('local tico = @record{}', 'global tico = @record{}')
+      :gsub('local tico%.', 'global tico.')
+      :gsub('local function tico_(.-)%((.-)<cimport,', "function tico.%1(%2<cimport'tico_%1',")
 
   -- ==================== --
   -- simplify enum fields --
